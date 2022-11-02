@@ -8,3 +8,5 @@ venv/
 .idea/
 wandb/
 !/TCGA_CS_4944.png
+/train_hq.zip
+/TCGA_CS_4944.png
