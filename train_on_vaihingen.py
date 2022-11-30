@@ -8,6 +8,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 import wandb
+
 wandb.init(project="MCD-U-Net-Vaihingen", entity="mathemage")
 
 from torch import optim
@@ -22,6 +23,22 @@ from unet import UNet
 dir_img = Path('./data/vaihingen/imgs/')
 dir_mask = Path('./data/vaihingen/masks/')
 dir_checkpoint = Path('./checkpoints/vaihingen/')
+
+
+def rgb_masks_to_categorial():  # TODO
+    """
+     From dataset description at https://www.isprs.org/education/benchmarks/UrbanSemLab/semantic-labeling.aspx
+
+       Six categories/classes have been defined:
+         Impervious surfaces (RGB: 255, 255, 255)
+         Building (RGB: 0, 0, 255)
+         Low vegetation (RGB: 0, 255, 255)
+         Tree (RGB: 0, 255, 0)
+         Car (RGB: 255, 255, 0)
+         Clutter/background (RGB: 255, 0, 0)
+    """
+    raise NotImplementedError
+
 
 def train_net(net,
               device,
@@ -74,12 +91,14 @@ def train_net(net,
     global_step = 0
 
     # 5. Begin training
-    for epoch in range(1, epochs+1):
+    for epoch in range(1, epochs + 1):
         net.train()
         epoch_loss = 0
         with tqdm(total=n_train, desc=f'Epoch {epoch}/{epochs}', unit='img') as pbar:
             for batch in train_loader:
                 images = batch['image']
+                if False:  # TODO
+                    rgb_masks_to_categorial()
                 true_masks = batch['mask']
 
                 assert images.shape[1] == net.n_channels, \
