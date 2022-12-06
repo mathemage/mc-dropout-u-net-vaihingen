@@ -10,16 +10,17 @@ import torch
 # Tree (RGB: 0, 255, 0)
 # Car (RGB: 255, 255, 0)
 # Clutter/background (RGB: 255, 0, 0)
-color_dict = {0: (255, 255, 255),
-              1: (0, 0, 255),
-              2: (0, 255, 255),
-              3: (0, 255, 0),
-              4: (255, 255, 0),
-              5: (255, 0, 0)
-              }
+vaihingen_lut = [
+    [255, 255, 255],
+    [0, 0, 255],
+    [0, 255, 255],
+    [0, 255, 0],
+    [255, 255, 0],
+    [255, 0, 0]
+]
 
 
-def rgb_to_onehot(rgb_target=None, color_lut=None):
+def rgb_to_onehot(rgb_target=None, color_lut=vaihingen_lut):
     a = torch.Tensor([1, 2, 2, 3, 4, 4, 4, 5])
     b = torch.Tensor([1, 2, 4])
     lut_indices = torch.zeros_like(a)
