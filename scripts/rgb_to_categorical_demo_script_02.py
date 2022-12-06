@@ -1,5 +1,7 @@
 # from https://stackoverflow.com/questions/43884463/how-to-convert-rgb-image-to-one-hot-encoded-3d-array-based-on-color-using-numpy
 
+import numpy as np
+
 # Six categories/classes have been defined:
 #
 # Impervious surfaces (RGB: 255, 255, 255)
