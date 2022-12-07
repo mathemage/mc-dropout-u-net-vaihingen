@@ -34,12 +34,15 @@ def rgb_to_onehot(rgb_target=None, color_lut=None):
     print(f"lut_indices: {lut_indices}")
     for i, e in enumerate(color_lut):
         lut_indices = lut_indices + (rgb_target == e) * (i + 1)
-        print(f"i+1 == {i + 1}, lut_indices: {lut_indices}")
+        print(f"i+1 == {i + 1}, e: {e}")
+        print(f"lut_indices: {lut_indices}")
 
 
 if __name__ == "__main__":
     print(torch.__version__)
     print(f"vaihingen_lut_dict: {vaihingen_lut_dict}")
+
+    rgb_to_onehot()
 
     sample_target = torch.tensor([
         vaihingen_lut,
@@ -47,4 +50,4 @@ if __name__ == "__main__":
     ])
     print(f"sample_target: {sample_target}")
 
-    rgb_to_onehot()
+    rgb_to_onehot(rgb_target=sample_target, color_lut=vaihingen_lut)  # TODO fix masking in the last dim
