@@ -38,4 +38,11 @@ def rgb_to_onehot(rgb_target=None, color_lut=vaihingen_lut):
 if __name__ == "__main__":
     print(torch.__version__)
     print(f"vaihingen_lut_dict: {vaihingen_lut_dict}")
+
+    sample_target = torch.tensor([
+        vaihingen_lut,
+        torch.flip(torch.tensor(vaihingen_lut), dims=[0])
+    ])
+    print(f"sample_target: {sample_target}")
+
     rgb_to_onehot()
