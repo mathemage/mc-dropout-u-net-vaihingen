@@ -21,16 +21,18 @@ vaihingen_lut = [
 vaihingen_lut_dict = dict(enumerate(vaihingen_lut))
 
 
-def rgb_to_onehot(rgb_target=None, color_lut=vaihingen_lut):
+def rgb_to_onehot(rgb_target=None, color_lut=None):
     if rgb_target is None:
         rgb_target = torch.Tensor([1, 2, 2, 3, 4, 4, 4, 5])
     print(f"rgb_target: {rgb_target}")
 
-    b = torch.Tensor([1, 2, 4])
+    if color_lut is None:
+        color_lut = torch.Tensor([1, 2, 4])
+    print(f"color_lut: {color_lut}")
 
     lut_indices = torch.zeros_like(rgb_target)
     print(f"lut_indices: {lut_indices}")
-    for i, e in enumerate(b):
+    for i, e in enumerate(color_lut):
         lut_indices = lut_indices + (rgb_target == e) * (i + 1)
         print(f"i+1 == {i + 1}, lut_indices: {lut_indices}")
 
