@@ -18,6 +18,7 @@ vaihingen_lut = [
     [255, 255, 0],
     [255, 0, 0]
 ]
+vaihingen_lut_dict = dict(enumerate(vaihingen_lut))
 
 
 def rgb_to_onehot(rgb_target=None, color_lut=vaihingen_lut):
@@ -36,4 +37,5 @@ def rgb_to_onehot(rgb_target=None, color_lut=vaihingen_lut):
 
 if __name__ == "__main__":
     print(torch.__version__)
+    print(f"vaihingen_lut_dict: {vaihingen_lut_dict}")
     rgb_to_onehot()
