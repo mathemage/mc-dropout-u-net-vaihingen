@@ -42,12 +42,21 @@ if __name__ == "__main__":
     print(torch.__version__)
     print(f"vaihingen_lut_dict: {vaihingen_lut_dict}")
 
+    flipped_vaihingen_lut = torch.flip(vaihingen_lut, dims=[0])
+    print(f"flipped_vaihingen_lut: {flipped_vaihingen_lut}")
+
     rgb_to_onehot()
 
-    sample_target = torch.tensor([
+    sample_target1 = torch.cat((
         vaihingen_lut,
-        torch.flip(torch.tensor(vaihingen_lut), dims=[0])
-    ])
-    print(f"sample_target: {sample_target}")
+        flipped_vaihingen_lut
+    ), 0)
+    print(f"sample_target1: {sample_target1}")
+    # rgb_to_onehot(rgb_target=sample_target1, color_lut=vaihingen_lut)  # TODO fix masking in the last dim
 
-    rgb_to_onehot(rgb_target=sample_target, color_lut=vaihingen_lut)  # TODO fix masking in the last dim
+    # sample_target2 = torch.tensor([
+    #     vaihingen_lut,
+    #     flipped_vaihingen_lut
+    # ])
+    # print(f"sample_target2: {sample_target2}")
+    # rgb_to_onehot(rgb_target=sample_target2, color_lut=vaihingen_lut)  # TODO fix masking in the last dim
