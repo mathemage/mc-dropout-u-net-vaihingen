@@ -50,13 +50,15 @@ if __name__ == "__main__":
     sample_target1 = torch.cat((
         vaihingen_lut,
         flipped_vaihingen_lut
-    ), 0)
+    ), dim=0)
     print(f"sample_target1: {sample_target1}")
+    print(f"sample_target1.size: {sample_target1.size()}")
     # rgb_to_onehot(rgb_target=sample_target1, color_lut=vaihingen_lut)  # TODO fix masking in the last dim
 
-    # sample_target2 = torch.tensor([
-    #     vaihingen_lut,
-    #     flipped_vaihingen_lut
-    # ])
-    # print(f"sample_target2: {sample_target2}")
+    sample_target2 = torch.stack([
+        vaihingen_lut,
+        flipped_vaihingen_lut
+    ])
+    print(f"sample_target2: {sample_target2}")
+    print(f"sample_target2.size: {sample_target2.size()}")
     # rgb_to_onehot(rgb_target=sample_target2, color_lut=vaihingen_lut)  # TODO fix masking in the last dim
