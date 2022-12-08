@@ -10,14 +10,14 @@ import torch
 # Tree (RGB: 0, 255, 0)
 # Car (RGB: 255, 255, 0)
 # Clutter/background (RGB: 255, 0, 0)
-vaihingen_lut = [
+vaihingen_lut = torch.tensor([
     [255, 255, 255],
     [0, 0, 255],
     [0, 255, 255],
     [0, 255, 0],
     [255, 255, 0],
     [255, 0, 0]
-]
+])
 vaihingen_lut_dict = dict(enumerate(vaihingen_lut))
 
 
