@@ -31,17 +31,20 @@ def rgb_to_onehot(rgb_target=None, color_lut=None):
     if rgb_target is None:
         rgb_target = torch.Tensor([1, 2, 2, 3, 4, 4, 4, 5])
     print(f"rgb_target: {rgb_target}")
+    print(f"rgb_target.shape: {rgb_target.shape}")
 
     if color_lut is None:
         color_lut = torch.Tensor([1, 2, 4])
     print(f"color_lut: {color_lut}")
 
-    lut_indices = torch.zeros_like(rgb_target)
+    lut_indices = torch.zeros(rgb_target.shape[:-1])
     lut_indices.fill_(UNDEF_CLS)
     print(f"lut_indices: {lut_indices}")
+    print(f"lut_indices.shape: {lut_indices.shape}")
 
     for i, e in enumerate(color_lut):
-        lut_indices = lut_indices + (rgb_target == e) * (i + 1)
+        # lut_indices += (rgb_target == e) * (i + 1)
+        lut_indices += torch.all(rgb_target == e, dim=-1) * (i + 1)
         print(f"\ni+1 == {i + 1}, e: {e}")
         print(f"lut_indices: {lut_indices}")
 
