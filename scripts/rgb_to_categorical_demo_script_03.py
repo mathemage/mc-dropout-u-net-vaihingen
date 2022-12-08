@@ -38,7 +38,7 @@ def rgb_to_onehot(rgb_target=None, color_lut=None):
     print(f"lut_indices: {lut_indices}")
     for i, e in enumerate(color_lut):
         lut_indices = lut_indices + (rgb_target == e) * (i + 1)
-        print(f"i+1 == {i + 1}, e: {e}")
+        print(f"\ni+1 == {i + 1}, e: {e}")
         print(f"lut_indices: {lut_indices}")
 
 
@@ -59,14 +59,14 @@ if __name__ == "__main__":
     ), dim=0)
     print(f"sample_target1: {sample_target1}")
     print(f"sample_target1.size: {sample_target1.size()}")
-    # rgb_to_onehot(rgb_target=sample_target1, color_lut=vaihingen_lut)  # TODO fix masking in the last dim
+    rgb_to_onehot(rgb_target=sample_target1, color_lut=vaihingen_lut)  # TODO fix masking in the last dim
     linesep()
 
-    sample_target2 = torch.stack([
-        vaihingen_lut,
-        flipped_vaihingen_lut
-    ])
-    print(f"sample_target2: {sample_target2}")
-    print(f"sample_target2.size: {sample_target2.size()}")
-    # rgb_to_onehot(rgb_target=sample_target2, color_lut=vaihingen_lut)  # TODO fix masking in the last dim
-    linesep()
+    # sample_target2 = torch.stack([
+    #     vaihingen_lut,
+    #     flipped_vaihingen_lut
+    # ])
+    # print(f"sample_target2: {sample_target2}")
+    # print(f"sample_target2.size: {sample_target2.size()}")
+    # # rgb_to_onehot(rgb_target=sample_target2, color_lut=vaihingen_lut)  # TODO fix masking in the last dim
+    # linesep()
