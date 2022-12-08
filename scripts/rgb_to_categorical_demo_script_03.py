@@ -20,6 +20,8 @@ vaihingen_lut = torch.tensor([
 ])
 vaihingen_lut_dict = dict(enumerate(vaihingen_lut))
 
+UNDEF_CLS = -1
+
 
 def linesep():
     print("_" * 80)
@@ -35,7 +37,9 @@ def rgb_to_onehot(rgb_target=None, color_lut=None):
     print(f"color_lut: {color_lut}")
 
     lut_indices = torch.zeros_like(rgb_target)
+    lut_indices.fill_(UNDEF_CLS)
     print(f"lut_indices: {lut_indices}")
+
     for i, e in enumerate(color_lut):
         lut_indices = lut_indices + (rgb_target == e) * (i + 1)
         print(f"\ni+1 == {i + 1}, e: {e}")
