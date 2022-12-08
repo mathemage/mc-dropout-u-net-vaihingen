@@ -21,6 +21,10 @@ vaihingen_lut = torch.tensor([
 vaihingen_lut_dict = dict(enumerate(vaihingen_lut))
 
 
+def linesep():
+    print("_" * 80)
+
+
 def rgb_to_onehot(rgb_target=None, color_lut=None):
     if rgb_target is None:
         rgb_target = torch.Tensor([1, 2, 2, 3, 4, 4, 4, 5])
@@ -44,8 +48,10 @@ if __name__ == "__main__":
 
     flipped_vaihingen_lut = torch.flip(vaihingen_lut, dims=[0])
     print(f"flipped_vaihingen_lut: {flipped_vaihingen_lut}")
+    linesep()
 
     rgb_to_onehot()
+    linesep()
 
     sample_target1 = torch.cat((
         vaihingen_lut,
@@ -54,6 +60,7 @@ if __name__ == "__main__":
     print(f"sample_target1: {sample_target1}")
     print(f"sample_target1.size: {sample_target1.size()}")
     # rgb_to_onehot(rgb_target=sample_target1, color_lut=vaihingen_lut)  # TODO fix masking in the last dim
+    linesep()
 
     sample_target2 = torch.stack([
         vaihingen_lut,
@@ -62,3 +69,4 @@ if __name__ == "__main__":
     print(f"sample_target2: {sample_target2}")
     print(f"sample_target2.size: {sample_target2.size()}")
     # rgb_to_onehot(rgb_target=sample_target2, color_lut=vaihingen_lut)  # TODO fix masking in the last dim
+    linesep()
