@@ -45,7 +45,7 @@ def rgb_to_onehot(rgb_target=None, color_lut=None):
 
     for i, e in enumerate(color_lut):
         offset = -UNDEF_CLS + i
-        lut_indices += torch.all(rgb_target == e, dim=-1) * offset
+        lut_indices += torch.all(rgb_target == e, dim=-1) * offset  # from https://stackoverflow.com/a/57216689/1460660
         print(f"\ni == {i}, offset == {offset}, e: {e}")
         print(f"lut_indices: {lut_indices}")
 
