@@ -20,6 +20,7 @@ vaihingen_lut = torch.tensor([
 ])
 
 UNDEF_CLS = -1
+assert UNDEF_CLS < 0
 
 
 def linesep():
