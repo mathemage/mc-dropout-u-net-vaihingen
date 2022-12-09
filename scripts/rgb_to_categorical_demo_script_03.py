@@ -30,6 +30,7 @@ def linesep():
 def rgb_to_onehot(rgb_target=None, color_lut=None):
     if rgb_target is None:
         rgb_target = torch.Tensor([1, 2, 2, 3, 4, 4, 4, 5])
+        rgb_target = torch.unsqueeze(rgb_target, dim=-1)
     print(f"rgb_target: {rgb_target}")
     print(f"rgb_target.shape: {rgb_target.shape}")
 
