@@ -18,7 +18,6 @@ vaihingen_lut = torch.tensor([
     [255, 255, 0],
     [255, 0, 0]
 ])
-vaihingen_lut_dict = dict(enumerate(vaihingen_lut))
 
 UNDEF_CLS = -1
 
@@ -27,16 +26,11 @@ def linesep():
     print("_" * 80)
 
 
-def rgb_to_onehot(rgb_target=None, color_lut=None):
-    if rgb_target is None:
-        rgb_target = torch.Tensor([1, 2, 2, 3, 4, 4, 4, 5])
-        rgb_target = torch.unsqueeze(rgb_target, dim=-1)
+def rgb_to_onehot(rgb_target=vaihingen_lut, color_lut=vaihingen_lut):
     print(f"rgb_target: {rgb_target}")
     print(f"rgb_target.shape: {rgb_target.shape}")
-
-    if color_lut is None:
-        color_lut = torch.Tensor([1, 2, 4])
     print(f"color_lut: {color_lut}")
+    print(f"color_lut.shape: {color_lut.shape}")
 
     lut_indices = torch.zeros(rgb_target.shape[:-1])
     lut_indices.fill_(UNDEF_CLS)
@@ -52,7 +46,6 @@ def rgb_to_onehot(rgb_target=None, color_lut=None):
 
 if __name__ == "__main__":
     print(torch.__version__)
-    print(f"vaihingen_lut_dict: {vaihingen_lut_dict}")
 
     flipped_vaihingen_lut = torch.flip(vaihingen_lut, dims=[0])
     print(f"flipped_vaihingen_lut: {flipped_vaihingen_lut}")
