@@ -28,7 +28,7 @@ def linesep():
 
 
 def rgb_to_onehot(rgb_target=vaihingen_lut, color_lut=vaihingen_lut):
-    print(f"rgb_target: {rgb_target}")
+    print(f"rgb_target: {rgb_target}")          # TODO extract into `print_log(tensor, tensor_name)`
     print(f"rgb_target.shape: {rgb_target.shape}")
     print(f"color_lut: {color_lut}")
     print(f"color_lut.shape: {color_lut.shape}")
