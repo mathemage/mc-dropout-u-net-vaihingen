@@ -29,7 +29,7 @@ def test_cat_lut_flipped():
     expected_onehot = torch.tensor([0., 1., 2., 3., 4., 5., 5., 4., 3., 2., 1., 0.])
     print(f"expected_onehot): {expected_onehot}")
     print(f"onehot == expected_onehot): {onehot == expected_onehot}")
-    assert torch.all(onehot == expected_onehot)
+    assert torch.equal(onehot, expected_onehot)
 
 
 # def test_stack_lut_flipped():
