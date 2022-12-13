@@ -44,6 +44,8 @@ def rgb_to_onehot(rgb_target=vaihingen_lut, color_lut=vaihingen_lut):
         print(f"\ni == {i}, offset == {offset}, e: {e}")
         print(f"lut_indices: {lut_indices}")
 
+    return lut_indices
+
 
 if __name__ == "__main__":
     print(torch.__version__)
