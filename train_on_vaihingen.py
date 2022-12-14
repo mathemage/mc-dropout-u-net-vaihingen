@@ -8,6 +8,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 import wandb
+# from rgb_to_categorical_vaihingen import rgb_to_onehot, UNDEF_CLS, vaihingen_lut
 
 wandb.init(project="MCD-U-Net-Vaihingen", entity="mathemage")
 
@@ -23,21 +24,6 @@ from unet import UNet
 dir_img = Path('./data/vaihingen/imgs/')
 dir_mask = Path('./data/vaihingen/masks/')
 dir_checkpoint = Path('./checkpoints/vaihingen/')
-
-
-def rgb_masks_to_categorial():  # TODO
-    """
-     From dataset description at https://www.isprs.org/education/benchmarks/UrbanSemLab/semantic-labeling.aspx
-
-       Six categories/classes have been defined:
-         Impervious surfaces (RGB: 255, 255, 255)
-         Building (RGB: 0, 0, 255)
-         Low vegetation (RGB: 0, 255, 255)
-         Tree (RGB: 0, 255, 0)
-         Car (RGB: 255, 255, 0)
-         Clutter/background (RGB: 255, 0, 0)
-    """
-    raise NotImplementedError
 
 
 def train_net(net,
@@ -97,9 +83,10 @@ def train_net(net,
         with tqdm(total=n_train, desc=f'Epoch {epoch}/{epochs}', unit='img') as pbar:
             for batch in train_loader:
                 images = batch['image']
-                if False:  # TODO
-                    rgb_masks_to_categorial()
                 true_masks = batch['mask']
+                # TODO
+                # true_masks = rgb_to_onehot(rgb_target=true_masks, color_lut=vaihingen_lut)
+                # true_masks = rgb_to_onehot(rgb_target=true_masks)
 
                 assert images.shape[1] == net.n_channels, \
                     f'Network has been defined with {net.n_channels} input channels, ' \
