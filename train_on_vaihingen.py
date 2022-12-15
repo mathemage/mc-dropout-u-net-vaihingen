@@ -86,7 +86,7 @@ def train_net(net,
             for batch in train_loader:
                 images = batch['image']
                 true_masks = batch['mask']
-                true_masks = rgb_to_onehot(rgb_target=true_masks)
+                true_masks = rgb_to_onehot(rgb_target=true_masks, quiet=True)
 
                 assert images.shape[1] == net.n_channels, \
                     f'Network has been defined with {net.n_channels} input channels, ' \
