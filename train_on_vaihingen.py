@@ -8,6 +8,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 import wandb
+from rgb_to_categorical_vaihingen import rgb_to_onehot
+
 # from rgb_to_categorical_vaihingen import rgb_to_onehot, UNDEF_CLS, vaihingen_lut
 
 wandb.init(project="MCD-U-Net-Vaihingen", entity="mathemage")
@@ -84,9 +86,7 @@ def train_net(net,
             for batch in train_loader:
                 images = batch['image']
                 true_masks = batch['mask']
-                # TODO
-                # true_masks = rgb_to_onehot(rgb_target=true_masks, color_lut=vaihingen_lut)
-                # true_masks = rgb_to_onehot(rgb_target=true_masks)
+                true_masks = rgb_to_onehot(rgb_target=true_masks)
 
                 assert images.shape[1] == net.n_channels, \
                     f'Network has been defined with {net.n_channels} input channels, ' \
