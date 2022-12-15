@@ -27,22 +27,25 @@ def linesep():
     print("_" * 80)
 
 
-def rgb_to_onehot(rgb_target=vaihingen_lut, color_lut=vaihingen_lut):
-    print(f"rgb_target: {rgb_target}")          # TODO extract into `print_log(tensor, tensor_name)`
-    print(f"rgb_target.shape: {rgb_target.shape}")
-    print(f"color_lut: {color_lut}")
-    print(f"color_lut.shape: {color_lut.shape}")
-
+def rgb_to_onehot(rgb_target=vaihingen_lut, color_lut=vaihingen_lut, quiet=False):
     lut_indices = torch.zeros(rgb_target.shape[:-1])
     lut_indices.fill_(UNDEF_CLS)
-    print(f"lut_indices: {lut_indices}")
-    print(f"lut_indices.shape: {lut_indices.shape}")
+
+    if not quiet:
+        print(f"rgb_target: {rgb_target}")          # TODO extract into `print_log(tensor, tensor_name)`
+        print(f"rgb_target.shape: {rgb_target.shape}")
+        print(f"color_lut: {color_lut}")
+        print(f"color_lut.shape: {color_lut.shape}")
+
+        print(f"lut_indices: {lut_indices}")
+        print(f"lut_indices.shape: {lut_indices.shape}")
 
     for i, e in enumerate(color_lut):
         offset = -UNDEF_CLS + i
         lut_indices += torch.all(rgb_target == e, dim=-1) * offset  # from https://stackoverflow.com/a/57216689/1460660
-        print(f"\ni == {i}, offset == {offset}, e: {e}")
-        print(f"lut_indices: {lut_indices}")
+        if not quiet:
+            print(f"\ni == {i}, offset == {offset}, e: {e}")
+            print(f"lut_indices: {lut_indices}")
 
     return lut_indices
 
