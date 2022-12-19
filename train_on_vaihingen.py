@@ -10,8 +10,6 @@ import torch.nn.functional as F
 import wandb
 from rgb_to_categorical_vaihingen import rgb_to_onehot
 
-# from rgb_to_categorical_vaihingen import rgb_to_onehot, UNDEF_CLS, vaihingen_lut
-
 wandb.init(project="MCD-U-Net-Vaihingen", entity="mathemage")
 
 from torch import optim
@@ -20,7 +18,7 @@ from tqdm import tqdm
 
 from utils.data_loading import BasicDataset, CarvanaDataset
 from utils.dice_score import dice_loss
-from evaluate import evaluate
+from evaluate_on_vaihingen import evaluate
 from unet import UNet
 
 dir_img = Path('./data/vaihingen/imgs/')
