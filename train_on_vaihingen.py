@@ -143,6 +143,10 @@ def train_net(net,
                             **histograms
                         })
 
+                # optimize memory by deallocating on CUDA
+                del true_masks
+                torch.cuda.empty_cache()
+
         if save_checkpoint:
             Path(dir_checkpoint).mkdir(parents=True, exist_ok=True)
             torch.save(net.state_dict(), str(dir_checkpoint / 'checkpoint_epoch{}.pth'.format(epoch)))
