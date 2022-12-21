@@ -8,6 +8,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 import wandb
+from rgb_to_categorical_vaihingen import rgb_to_onehot
+
 wandb.init(project="MCD-U-Net-Vaihingen", entity="mathemage")
 
 from torch import optim
@@ -16,12 +18,13 @@ from tqdm import tqdm
 
 from utils.data_loading import BasicDataset, CarvanaDataset
 from utils.dice_score import dice_loss
-from evaluate import evaluate
+from evaluate_on_vaihingen import evaluate
 from unet import UNet
 
 dir_img = Path('./data/vaihingen/imgs/')
 dir_mask = Path('./data/vaihingen/masks/')
 dir_checkpoint = Path('./checkpoints/vaihingen/')
+
 
 def train_net(net,
               device,
@@ -74,13 +77,14 @@ def train_net(net,
     global_step = 0
 
     # 5. Begin training
-    for epoch in range(1, epochs+1):
+    for epoch in range(1, epochs + 1):
         net.train()
         epoch_loss = 0
         with tqdm(total=n_train, desc=f'Epoch {epoch}/{epochs}', unit='img') as pbar:
             for batch in train_loader:
                 images = batch['image']
                 true_masks = batch['mask']
+                true_masks = rgb_to_onehot(rgb_target=true_masks, quiet=True)
 
                 assert images.shape[1] == net.n_channels, \
                     f'Network has been defined with {net.n_channels} input channels, ' \
@@ -138,6 +142,10 @@ def train_net(net,
                             'epoch': epoch,
                             **histograms
                         })
+
+                # optimize memory by deallocating on CUDA
+                del true_masks
+                torch.cuda.empty_cache()
 
         if save_checkpoint:
             Path(dir_checkpoint).mkdir(parents=True, exist_ok=True)
