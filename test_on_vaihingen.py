@@ -23,55 +23,39 @@ from unet import UNet
 
 dir_img = Path('./data/vaihingen/imgs/')
 dir_mask = Path('./data/vaihingen/masks/')
-dir_checkpoint = Path('./checkpoints/vaihingen/')
+# dir_checkpoint = Path('./checkpoints/vaihingen/')
 
 
-def train_net(net,
-              device,
-              epochs: int = 5,
-              batch_size: int = 1,
-              learning_rate: float = 1e-5,
-              val_percent: float = 0.1,
-              save_checkpoint: bool = True,
-              img_scale: float = 0.5,
-              amp: bool = False):
+def test_net(net,
+             device,
+             epochs: int = 1,
+             batch_size: int = 1,
+             img_scale: float = 0.5,
+             amp: bool = False):
     # 1. Create dataset
     try:
-        dataset = CarvanaDataset(dir_img, dir_mask, img_scale)
+        test_set = CarvanaDataset(dir_img, dir_mask, img_scale)
     except (AssertionError, RuntimeError):
-        dataset = BasicDataset(dir_img, dir_mask, img_scale)
+        test_set = BasicDataset(dir_img, dir_mask, img_scale)
+    n_test = len(test_set)
 
-    # 2. Split into train / validation partitions
-    n_val = int(len(dataset) * val_percent)
-    n_train = len(dataset) - n_val
-    train_set, val_set = random_split(dataset, [n_train, n_val], generator=torch.Generator().manual_seed(0))
-
-    # 3. Create data loaders
+    # 2. Create data loaders
     loader_args = dict(batch_size=batch_size, num_workers=4, pin_memory=True)
-    train_loader = DataLoader(train_set, shuffle=True, **loader_args)
-    val_loader = DataLoader(val_set, shuffle=False, drop_last=True, **loader_args)
+    test_loader = DataLoader(test_set, shuffle=False, **loader_args)
 
     # (Initialize logging)
     experiment = wandb.init(project='U-Net', resume='allow', anonymous='must')
-    experiment.config.update(dict(epochs=epochs, batch_size=batch_size, learning_rate=learning_rate,
-                                  val_percent=val_percent, save_checkpoint=save_checkpoint, img_scale=img_scale,
-                                  amp=amp))
+    experiment.config.update(dict(epochs=epochs, batch_size=batch_size, img_scale=img_scale, amp=amp))
 
     logging.info(f'''Starting training:
         Epochs:          {epochs}
         Batch size:      {batch_size}
-        Learning rate:   {learning_rate}
-        Training size:   {n_train}
-        Validation size: {n_val}
-        Checkpoints:     {save_checkpoint}
         Device:          {device.type}
         Images scaling:  {img_scale}
         Mixed Precision: {amp}
     ''')
 
     # 4. Set up the optimizer, the loss, the learning rate scheduler and the loss scaling for AMP
-    optimizer = optim.RMSprop(net.parameters(), lr=learning_rate, weight_decay=1e-8, momentum=0.9)
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max', patience=2)  # goal: maximize Dice score
     grad_scaler = torch.cuda.amp.GradScaler(enabled=amp)
     criterion = nn.CrossEntropyLoss()
     global_step = 0
@@ -80,8 +64,8 @@ def train_net(net,
     for epoch in range(1, epochs + 1):
         net.train()
         epoch_loss = 0
-        with tqdm(total=n_train, desc=f'Epoch {epoch}/{epochs}', unit='img') as pbar:
-            for batch in train_loader:
+        with tqdm(total=n_test, desc=f'Epoch {epoch}/{epochs}', unit='img') as pbar:
+            for batch in test_loader:
                 images = batch['image']
                 true_masks = batch['mask']
                 true_masks = rgb_to_onehot(rgb_target=true_masks, quiet=True)
@@ -101,23 +85,23 @@ def train_net(net,
                                        F.one_hot(true_masks, net.n_classes).permute(0, 3, 1, 2).float(),
                                        multiclass=True)
 
-                optimizer.zero_grad(set_to_none=True)
-                grad_scaler.scale(loss).backward()
-                grad_scaler.step(optimizer)
-                grad_scaler.update()
+                # optimizer.zero_grad(set_to_none=True)
+                # grad_scaler.scale(loss).backward()
+                # grad_scaler.step(optimizer)
+                # grad_scaler.update()
 
                 pbar.update(images.shape[0])
                 global_step += 1
                 epoch_loss += loss.item()
                 experiment.log({
-                    'train loss': loss.item(),
+                    'test loss': loss.item(),
                     'step': global_step,
                     'epoch': epoch
                 })
                 pbar.set_postfix(**{'loss (batch)': loss.item()})
 
                 # Evaluation round
-                division_step = (n_train // (10 * batch_size))
+                division_step = (n_test // (10 * batch_size))
                 if division_step > 0:
                     if global_step % division_step == 0:
                         histograms = {}
@@ -146,11 +130,6 @@ def train_net(net,
                 # optimize memory by deallocating on CUDA
                 del true_masks
                 torch.cuda.empty_cache()
-
-        if save_checkpoint:
-            Path(dir_checkpoint).mkdir(parents=True, exist_ok=True)
-            torch.save(net.state_dict(), str(dir_checkpoint / 'checkpoint_epoch{}.pth'.format(epoch)))
-            logging.info(f'Checkpoint {epoch} saved!')
 
 
 def get_args():
@@ -193,14 +172,14 @@ if __name__ == '__main__':
 
     net.to(device=device)
     try:
-        train_net(net=net,
-                  epochs=args.epochs,
-                  batch_size=args.batch_size,
-                  learning_rate=args.lr,
-                  device=device,
-                  img_scale=args.scale,
-                  val_percent=args.val / 100,
-                  amp=args.amp)
+        test_net(net=net,
+                 epochs=args.epochs,
+                 batch_size=args.batch_size,
+                 learning_rate=args.lr,
+                 device=device,
+                 img_scale=args.scale,
+                 val_percent=args.val / 100,
+                 amp=args.amp)
     except KeyboardInterrupt:
         torch.save(net.state_dict(), 'INTERRUPTED.pth')
         logging.info('Saved interrupt')
