@@ -1,6 +1,6 @@
 import argparse
 import logging
-import sys
+# import sys
 from pathlib import Path
 
 import torch
@@ -10,7 +10,7 @@ import torch.nn.functional as F
 import wandb
 from rgb_to_categorical_vaihingen import rgb_to_onehot
 
-wandb.init(project="MCD-U-Net-Vaihingen", entity="mathemage")
+wandb.init(project="MCD-U-Net-Vaihingen-test", entity="mathemage")
 
 from torch import optim
 from torch.utils.data import DataLoader, random_split
