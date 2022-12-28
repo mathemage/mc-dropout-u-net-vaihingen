@@ -21,9 +21,8 @@ from utils.dice_score import dice_loss
 from evaluate_on_vaihingen import evaluate
 from unet import UNet
 
-dir_img = Path('./data/vaihingen/imgs/')
-dir_mask = Path('./data/vaihingen/masks/')
-# dir_checkpoint = Path('./checkpoints/vaihingen/')
+dir_img = Path('./data/vaihingen/testset/imgs/')
+dir_mask = Path('./data/vaihingen/testset/masks/')
 
 
 def test_net(net,
