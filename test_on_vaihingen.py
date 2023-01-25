@@ -120,6 +120,7 @@ def test_net(net,
 
                 # optimize memory by deallocating on CUDA
                 del true_masks
+                del images
                 torch.cuda.empty_cache()
 
 
