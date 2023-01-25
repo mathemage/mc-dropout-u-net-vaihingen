@@ -41,7 +41,7 @@ def test_net(net,
     # 2. Create data loaders
     loader_args = dict(batch_size=batch_size, num_workers=4, pin_memory=True)
     test_loader = DataLoader(test_set, shuffle=False, **loader_args)
-    val_loader = DataLoader(test_set, shuffle=False, **loader_args)
+    # val_loader = DataLoader(test_set, shuffle=False, **loader_args)
 
     # (Initialize logging)
     experiment = wandb.init(project='U-Net', resume='allow', anonymous='must')
@@ -94,29 +94,29 @@ def test_net(net,
                 pbar.set_postfix(**{'loss (batch)': loss.item()})
 
                 # Evaluation round
-                division_step = (n_test // (10 * batch_size))
-                if division_step > 0:
-                    if global_step % division_step == 0:
-                        histograms = {}
-                        for tag, value in net.named_parameters():
-                            tag = tag.replace('/', '.')
-                            histograms['Weights/' + tag] = wandb.Histogram(value.data.cpu())
-                            histograms['Gradients/' + tag] = wandb.Histogram(value.grad.data.cpu())
-
-                        val_score = evaluate(net, val_loader, device)  # TODO replace val_loader
-
-                        logging.info('Validation Dice score: {}'.format(val_score))
-                        experiment.log({
-                            'validation Dice': val_score,
-                            'images': wandb.Image(images[0].cpu()),
-                            'masks': {
-                                'true': wandb.Image(true_masks[0].float().cpu()),
-                                'pred': wandb.Image(masks_pred.argmax(dim=1)[0].float().cpu()),
-                            },
-                            'step': global_step,
-                            'epoch': epoch,
-                            **histograms
-                        })
+                # division_step = (n_test // (10 * batch_size))
+                # if division_step > 0:
+                #     if global_step % division_step == 0:
+                        # histograms = {}
+                        # for tag, value in net.named_parameters():
+                        #     tag = tag.replace('/', '.')
+                        #     histograms['Weights/' + tag] = wandb.Histogram(value.data.cpu())
+                        #     histograms['Gradients/' + tag] = wandb.Histogram(value.grad.data.cpu())
+                        #
+                        # val_score = evaluate(net, val_loader, device)  # TODO replace val_loader
+                        #
+                        # logging.info('Validation Dice score: {}'.format(val_score))
+                        # experiment.log({
+                        #     'validation Dice': val_score,
+                        #     'images': wandb.Image(images[0].cpu()),
+                        #     'masks': {
+                        #         'true': wandb.Image(true_masks[0].float().cpu()),
+                        #         'pred': wandb.Image(masks_pred.argmax(dim=1)[0].float().cpu()),
+                        #     },
+                        #     'step': global_step,
+                        #     'epoch': epoch,
+                        #     **histograms
+                        # })
 
                 # optimize memory by deallocating on CUDA
                 del true_masks
