@@ -26,11 +26,14 @@ dir_mask = Path('./data/vaihingen/testset/masks/')
 
 
 def test_net(net,
-             device,
-             epochs: int = 1,
-             batch_size: int = 1,
-             img_scale: float = 0.5,
-             amp: bool = False):
+              device,
+              epochs: int = 5,
+              batch_size: int = 1,
+              learning_rate: float = 1e-5,
+              val_percent: float = 0.1,
+              save_checkpoint: bool = True,
+              img_scale: float = 0.5,
+              amp: bool = False):
     # 1. Create dataset
     try:
         test_set = CarvanaDataset(dir_img, dir_mask, img_scale)
@@ -40,8 +43,8 @@ def test_net(net,
 
     # 2. Create data loaders
     loader_args = dict(batch_size=batch_size, num_workers=4, pin_memory=True)
-    test_loader = DataLoader(test_set, shuffle=False, **loader_args)
-    # val_loader = DataLoader(test_set, shuffle=False, **loader_args)
+    test_loader = DataLoader(test_set, shuffle=True, **loader_args)
+    val_loader = DataLoader(test_set, shuffle=False, **loader_args)
 
     # (Initialize logging)
     experiment = wandb.init(project='U-Net', resume='allow', anonymous='must')
@@ -56,11 +59,15 @@ def test_net(net,
     ''')
 
     # 4. Set up the optimizer, the loss, the learning rate scheduler and the loss scaling for AMP
+    optimizer = optim.RMSprop(net.parameters(), lr=learning_rate, weight_decay=1e-8, momentum=0.9)
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max', patience=2)  # goal: maximize Dice score
+    grad_scaler = torch.cuda.amp.GradScaler(enabled=amp)
     criterion = nn.CrossEntropyLoss()
     global_step = 0
 
     # 5. Begin training
     for epoch in range(1, epochs + 1):
+        net.train()
         epoch_loss = 0
         with tqdm(total=n_test, desc=f'Epoch {epoch}/{epochs}', unit='img') as pbar:
             for batch in test_loader:
@@ -83,6 +90,11 @@ def test_net(net,
                                        F.one_hot(true_masks, net.n_classes).permute(0, 3, 1, 2).float(),
                                        multiclass=True)
 
+                optimizer.zero_grad(set_to_none=True)
+                grad_scaler.scale(loss).backward()
+                grad_scaler.step(optimizer)
+                grad_scaler.update()
+
                 pbar.update(images.shape[0])
                 global_step += 1
                 epoch_loss += loss.item()
@@ -94,29 +106,30 @@ def test_net(net,
                 pbar.set_postfix(**{'loss (batch)': loss.item()})
 
                 # Evaluation round
-                # division_step = (n_test // (10 * batch_size))
-                # if division_step > 0:
-                #     if global_step % division_step == 0:
-                        # histograms = {}
-                        # for tag, value in net.named_parameters():
-                        #     tag = tag.replace('/', '.')
-                        #     histograms['Weights/' + tag] = wandb.Histogram(value.data.cpu())
-                        #     histograms['Gradients/' + tag] = wandb.Histogram(value.grad.data.cpu())
-                        #
-                        # val_score = evaluate(net, val_loader, device)  # TODO replace val_loader
-                        #
-                        # logging.info('Validation Dice score: {}'.format(val_score))
-                        # experiment.log({
-                        #     'validation Dice': val_score,
-                        #     'images': wandb.Image(images[0].cpu()),
-                        #     'masks': {
-                        #         'true': wandb.Image(true_masks[0].float().cpu()),
-                        #         'pred': wandb.Image(masks_pred.argmax(dim=1)[0].float().cpu()),
-                        #     },
-                        #     'step': global_step,
-                        #     'epoch': epoch,
-                        #     **histograms
-                        # })
+                # TODO find out why this needs to be here
+                division_step = (n_test // (10 * batch_size))
+                if division_step > 0:
+                    if global_step % division_step == 0:
+                        histograms = {}
+                        for tag, value in net.named_parameters():
+                            tag = tag.replace('/', '.')
+                            histograms['Weights/' + tag] = wandb.Histogram(value.data.cpu())
+                            histograms['Gradients/' + tag] = wandb.Histogram(value.grad.data.cpu())
+
+                        val_score = evaluate(net, val_loader, device)  # TODO replace val_loader
+
+                        logging.info('Validation Dice score: {}'.format(val_score))
+                        experiment.log({
+                            'validation Dice': val_score,
+                            'images': wandb.Image(images[0].cpu()),
+                            'masks': {
+                                'true': wandb.Image(true_masks[0].float().cpu()),
+                                'pred': wandb.Image(masks_pred.argmax(dim=1)[0].float().cpu()),
+                            },
+                            'step': global_step,
+                            'epoch': epoch,
+                            **histograms
+                        })
 
                 # optimize memory by deallocating on CUDA
                 del true_masks
