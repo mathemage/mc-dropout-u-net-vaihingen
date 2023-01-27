@@ -15,8 +15,8 @@ from utils.data_loading import BasicDataset, CarvanaDataset
 from evaluate_on_vaihingen import evaluate
 from unet import UNet
 
-dir_img = Path('./data/vaihingen/testset/imgs/')
-dir_mask = Path('./data/vaihingen/testset/masks/')
+test_dir_img = Path('./data/vaihingen/testset/imgs/')
+test_dir_mask = Path('./data/vaihingen/testset/masks/')
 
 
 def test_net(net,
@@ -27,9 +27,9 @@ def test_net(net,
              amp: bool = False):
     # 1. Create dataset
     try:
-        test_set = CarvanaDataset(dir_img, dir_mask, img_scale)
+        test_set = CarvanaDataset(test_dir_img, test_dir_mask, img_scale)
     except (AssertionError, RuntimeError):
-        test_set = BasicDataset(dir_img, dir_mask, img_scale)
+        test_set = BasicDataset(test_dir_img, test_dir_mask, img_scale)
     n_test = len(test_set)
 
     # 2. Create data loaders
