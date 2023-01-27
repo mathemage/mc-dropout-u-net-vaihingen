@@ -9,6 +9,7 @@ import torch.nn.functional as F
 
 import wandb
 from rgb_to_categorical_vaihingen import rgb_to_onehot
+from test_on_vaihingen import test_net
 
 wandb.init(project="MCD-U-Net-Vaihingen", entity="mathemage")
 
@@ -192,6 +193,7 @@ if __name__ == '__main__':
         logging.info(f'Model loaded from {args.load}')
 
     net.to(device=device)
+    logging.info('Training phase:')
     try:
         train_net(net=net,
                   epochs=args.epochs,
@@ -203,5 +205,20 @@ if __name__ == '__main__':
                   amp=args.amp)
     except KeyboardInterrupt:
         torch.save(net.state_dict(), 'INTERRUPTED.pth')
-        logging.info('Saved interrupt')
+        logging.info('Saved interrupt (training)')
         raise
+        # sys.exit(1)
+
+    logging.info('Testing phase:')
+    try:
+        test_net(net=net,
+                 epochs=args.epochs,
+                 batch_size=args.batch_size,
+                 device=device,
+                 img_scale=args.scale,
+                 amp=args.amp)
+    except KeyboardInterrupt:
+        torch.save(net.state_dict(), 'INTERRUPTED.pth')
+        logging.info('Saved interrupt (testing)')
+        raise
+        # sys.exit(2)
