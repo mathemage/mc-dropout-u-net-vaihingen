@@ -4,20 +4,14 @@ import logging
 from pathlib import Path
 
 import torch
-import torch.nn as nn
-import torch.nn.functional as F
 
 import wandb
-from rgb_to_categorical_vaihingen import rgb_to_onehot
 
 wandb.init(project="MCD-U-Net-Vaihingen-test", entity="mathemage")
 
-from torch import optim
-from torch.utils.data import DataLoader, random_split
-from tqdm import tqdm
+from torch.utils.data import DataLoader
 
 from utils.data_loading import BasicDataset, CarvanaDataset
-from utils.dice_score import dice_loss
 from evaluate_on_vaihingen import evaluate
 from unet import UNet
 
