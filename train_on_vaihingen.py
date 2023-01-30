@@ -207,7 +207,6 @@ if __name__ == '__main__':
         torch.save(net.state_dict(), 'INTERRUPTED.pth')
         logging.info('Saved interrupt (training)')
         raise
-        # sys.exit(1)
 
     logging.info('Testing phase:')
     try:
@@ -221,4 +220,3 @@ if __name__ == '__main__':
         torch.save(net.state_dict(), 'INTERRUPTED.pth')
         logging.info('Saved interrupt (testing)')
         raise
-        # sys.exit(2)
