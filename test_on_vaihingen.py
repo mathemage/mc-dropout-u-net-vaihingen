@@ -1,6 +1,5 @@
 import argparse
 import logging
-# import sys
 from pathlib import Path
 
 import torch
@@ -21,7 +20,6 @@ test_dir_mask = Path('./data/vaihingen/testset/masks/')
 
 def test_net(net,
              device,
-             epochs: int = 5,
              batch_size: int = 1,
              img_scale: float = 0.5,
              amp: bool = False):
@@ -38,10 +36,9 @@ def test_net(net,
 
     # (Initialize logging)
     experiment = wandb.init(project='U-Net', resume='allow', anonymous='must')
-    experiment.config.update(dict(epochs=epochs, batch_size=batch_size, img_scale=img_scale, amp=amp))
+    experiment.config.update(dict(batch_size=batch_size, img_scale=img_scale, amp=amp))
 
-    logging.info(f'''Starting training:
-        Epochs:          {epochs}
+    logging.info(f'''Starting testing:
         Batch size:      {batch_size}
         Device:          {device.type}
         Images scaling:  {img_scale}
@@ -65,7 +62,6 @@ def test_net(net,
 
 def get_args():
     parser = argparse.ArgumentParser(description='Test the UNet on images and target masks')
-    parser.add_argument('--epochs', '-e', metavar='E', type=int, default=5, help='Number of epochs')
     parser.add_argument('--batch-size', '-b', dest='batch_size', metavar='B', type=int, default=1, help='Batch size')
     parser.add_argument('--load', '-f', type=str, default=False, help='Load model from a .pth file')
     parser.add_argument('--scale', '-s', type=float, default=0.5, help='Downscaling factor of the images')
@@ -100,7 +96,6 @@ if __name__ == '__main__':
     net.to(device=device)
     try:
         test_net(net=net,
-                 epochs=args.epochs,
                  batch_size=args.batch_size,
                  device=device,
                  img_scale=args.scale,

@@ -211,7 +211,6 @@ if __name__ == '__main__':
     logging.info('Testing phase:')
     try:
         test_net(net=net,
-                 epochs=args.epochs,
                  batch_size=args.batch_size,
                  device=device,
                  img_scale=args.scale,
