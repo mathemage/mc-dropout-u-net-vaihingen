@@ -9,6 +9,7 @@ import torch.nn.functional as F
 
 import wandb
 from rgb_to_categorical_vaihingen import rgb_to_onehot
+from test_on_vaihingen import test_net
 
 wandb.init(project="MCD-U-Net-Vaihingen", entity="mathemage")
 
@@ -161,8 +162,13 @@ def get_args():
                         help='Learning rate', dest='lr')
     parser.add_argument('--load', '-f', type=str, default=False, help='Load model from a .pth file')
     parser.add_argument('--scale', '-s', type=float, default=0.5, help='Downscaling factor of the images')
-    parser.add_argument('--validation', '-v', dest='val', type=float, default=10.0,
+
+    # This data set contains 33 images with associated DSM. 16 ground-truth images are provided for
+    # training.
+    ONE_SIXTEENTH = 1.0/16.0  # We use one of them as validation set and the remaining images as training models.
+    parser.add_argument('--validation', '-v', dest='val', type=float, default=ONE_SIXTEENTH * 100,
                         help='Percent of the data that is used as validation (0-100)')
+
     parser.add_argument('--amp', action='store_true', default=False, help='Use mixed precision')
     parser.add_argument('--bilinear', action='store_true', default=False, help='Use bilinear upsampling')
     parser.add_argument('--classes', '-c', type=int, default=2, help='Number of classes')
@@ -192,6 +198,7 @@ if __name__ == '__main__':
         logging.info(f'Model loaded from {args.load}')
 
     net.to(device=device)
+    logging.info('Training phase:')
     try:
         train_net(net=net,
                   epochs=args.epochs,
@@ -203,5 +210,17 @@ if __name__ == '__main__':
                   amp=args.amp)
     except KeyboardInterrupt:
         torch.save(net.state_dict(), 'INTERRUPTED.pth')
-        logging.info('Saved interrupt')
+        logging.info('Saved interrupt (training)')
+        raise
+
+    logging.info('Testing phase:')
+    try:
+        test_net(net=net,
+                 batch_size=args.batch_size,
+                 device=device,
+                 img_scale=args.scale,
+                 amp=args.amp)
+    except KeyboardInterrupt:
+        torch.save(net.state_dict(), 'INTERRUPTED.pth')
+        logging.info('Saved interrupt (testing)')
         raise
