@@ -198,6 +198,7 @@ if __name__ == '__main__':
         logging.info(f'Model loaded from {args.load}')
 
     net.to(device=device)
+
     logging.info('Training phase:')
     try:
         train_net(net=net,
