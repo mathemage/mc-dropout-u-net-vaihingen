@@ -6,3 +6,4 @@ torchvision
 tqdm
 wandb
 pytest
+patchify    # https://pypi.org/project/patchify/
