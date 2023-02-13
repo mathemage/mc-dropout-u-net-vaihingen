@@ -1,17 +1,16 @@
 import numpy as np
 from patchify import patchify, unpatchify
 import logging
+import os
+from PIL import Image
 
 logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s')
 
 # From https://levelup.gitconnected.com/how-to-split-an-image-into-patches-with-python-e1cf42cf4f77
-from PIL import Image
-
 root_dir = "../data/vaihingen"
 img_dir = f"{root_dir}/imgs"
-import os   # TODO remove
 files = [f for f in os.listdir('.') if os.path.isfile(f)]
-logging.info(f"ls: {files}")
+logging.debug(f"ls: {files}")
 
 input_file = f"{img_dir}/top_mosaic_09cm_area1.tif"  # ./data/vaihingen/imgs/top_mosaic_09cm_area1.tif
 
