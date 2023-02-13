@@ -14,11 +14,11 @@ logging.debug(f"ls: {files}")
 
 input_file = f"{img_dir}/top_mosaic_09cm_area1.tif"  # ./data/vaihingen/imgs/top_mosaic_09cm_area1.tif
 
-image = Image.open(input_file)  # for example (3456, 5184, 3)
-image = np.asarray(image)
-logging.info(f"image.shape: {image.shape}")  # (6, 10, 1, 512, 512, 3)
+input_image = Image.open(input_file)  # for example (3456, 5184, 3)
+input_image = np.asarray(input_image)
+logging.info(f"image.shape: {input_image.shape}")  # (6, 10, 1, 512, 512, 3)
 
-patches = patchify(image, (512, 512, 3), step=512)
+patches = patchify(input_image, (512, 512, 3), step=512)
 logging.info(f"patches.shape: {patches.shape}")  # (6, 10, 1, 512, 512, 3)
 
 for i in range(patches.shape[0]):
