@@ -18,7 +18,9 @@ input_image = Image.open(input_file)  # for example (3456, 5184, 3)
 input_image = np.asarray(input_image)
 logging.info(f"image.shape: {input_image.shape}")  # (6, 10, 1, 512, 512, 3)
 
-patches = patchify(input_image, (512, 512, 3), step=512)
+patch_size = 512
+channels = 3
+patches = patchify(input_image, (patch_size, patch_size, channels), step=patch_size)
 logging.info(f"patches.shape: {patches.shape}")  # (6, 10, 1, 512, 512, 3)
 
 for i in range(patches.shape[0]):
