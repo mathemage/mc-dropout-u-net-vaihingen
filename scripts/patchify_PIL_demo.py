@@ -23,9 +23,12 @@ channels = 3
 patches = patchify(input_image, (patch_size, patch_size, channels), step=patch_size)
 logging.info(f"patches.shape: {patches.shape}")  # (6, 10, 1, 512, 512, 3)
 
+output_directory = f"{img_dir}/patches_{patch_size}x{patch_size}x{channels}"
+logging.debug(f"output_directory: {output_directory}")  # (6, 10, 1, 512, 512, 3)
+
 for i in range(patches.shape[0]):
     for j in range(patches.shape[1]):
-        output_file = f"{img_dir}/patches/top_mosaic_09cm_area1_patch_{i}_{j}.tif"
+        output_file = f"{output_directory}/top_mosaic_09cm_area1_patch_{i}_{j}.tif"
         patch = patches[i, j, 0]
         patch = Image.fromarray(patch)
         num = i * patches.shape[1] + j
