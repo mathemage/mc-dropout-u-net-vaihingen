@@ -24,6 +24,8 @@ patches = patchify(input_image, (patch_size, patch_size, channels), step=patch_s
 logging.info(f"patches.shape: {patches.shape}")  # (6, 10, 1, 512, 512, 3)
 
 output_directory = f"{img_dir}/patches_{patch_size}x{patch_size}x{channels}"
+if not os.path.exists(output_directory):
+    os.makedirs(output_directory)
 logging.debug(f"output_directory: {output_directory}")  # (6, 10, 1, 512, 512, 3)
 
 for i in range(patches.shape[0]):
