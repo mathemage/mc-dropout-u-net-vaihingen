@@ -1,8 +1,9 @@
-import numpy as np
-from patchify import patchify, unpatchify
 import logging
 import os
+
+import numpy as np
 from PIL import Image
+from patchify import patchify
 
 logging_level = logging.INFO
 # logging_level = logging.DEBUG
