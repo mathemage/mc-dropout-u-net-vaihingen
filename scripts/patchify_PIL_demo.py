@@ -4,7 +4,9 @@ import logging
 import os
 from PIL import Image
 
-logging.basicConfig(level=logging.INFO, format='[%(levelname)s] %(message)s')
+logging_level = logging.INFO
+# logging_level = logging.DEBUG
+logging.basicConfig(level=logging_level, format='[%(levelname)s] %(message)s')
 
 # From https://levelup.gitconnected.com/how-to-split-an-image-into-patches-with-python-e1cf42cf4f77
 root_dir = "../data/vaihingen"
