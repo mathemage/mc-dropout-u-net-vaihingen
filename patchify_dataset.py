@@ -20,8 +20,14 @@ if not os.path.exists(output_directory):
     os.makedirs(output_directory)
 logging.info(f"output_directory: {output_directory}")
 
-files = [file for file in os.listdir('.') if os.path.isfile(file)]
-logging.debug(f"ls .: {files}")
+input_files = os.listdir(img_dir)
+logging.debug(f"input_files: {input_files}")
+
+allowed_extensions = ('.tif', '.tiff')
+input_files = [file for file in input_files if file.endswith(allowed_extensions)]
+logging.info(f"input_files: {input_files}")
+logging.info(f"len(input_files): {len(input_files)}")
+exit(1)
 
 input_file = f"{img_dir}/top_mosaic_09cm_area1.tif"  # ./data/vaihingen/imgs/top_mosaic_09cm_area1.tif
 input_image = Image.open(input_file)
@@ -38,4 +44,4 @@ for i in range(patches.shape[0]):
 
         output_file = f"{output_directory}/top_mosaic_09cm_area1_patch_{i}_{j}.tif"
         patch.save(output_file)
-        logging.info(f"Patch {output_file} saved.")
+        # logging.info(f"Patch {output_file} saved.")
