@@ -6,10 +6,7 @@ from PIL import Image
 from patchify import patchify
 
 
-def patchify_directory(directory=None, patch_size=128, channels=3, allowed_extensions=('.tif', '.tiff')):
-    if directory is None:
-        directory = f"{root_dir}/imgs"
-
+def patchify_directory(directory, patch_size=128, channels=3, allowed_extensions=('.tif', '.tiff')):
     output_directory = f"{directory}/patches_{patch_size}x{patch_size}x{channels}"
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
@@ -53,9 +50,10 @@ if __name__ == "__main__":
     # logging_level = logging.DEBUG
     logging.basicConfig(level=logging_level, format='[%(levelname)s] %(message)s')
 
-    root_dir = "./data/vaihingen"
+    root_directory = "./data/vaihingen"
+    img_directory = f"{root_directory}/imgs"
 
-    patchify_directory()
+    patchify_directory(img_directory)
 
     # TODO iterate over targets, too
 
