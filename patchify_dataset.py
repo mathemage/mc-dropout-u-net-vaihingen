@@ -28,7 +28,6 @@ input_filenames = [file for file in input_filenames if file.endswith(allowed_ext
 logging.info(f"input_files: {' '.join(input_filenames)}")
 logging.info(f"len(input_files): {len(input_filenames)}")
 
-# input_file = f"{img_dir}/top_mosaic_09cm_area1.tif"  # ./data/vaihingen/imgs/top_mosaic_09cm_area1.tif
 for input_filename in input_filenames:
     input_path = f"{img_dir}/{input_filename}"
     logging.info(f"input_path: {input_path}")
@@ -49,5 +48,9 @@ for input_filename in input_filenames:
             output_file = f"{output_directory}/{basename}_patch_{i}_{j}.tif"
             patch.save(output_file)
             logging.info(f"Patch {output_file} saved.")
+
+output_filenames = os.listdir(output_directory)
+logging.info(f"output_files: {' '.join(output_filenames)}")
+logging.info(f"len(output_files): {len(output_filenames)}")
 
 # TODO iterate over targets, too
