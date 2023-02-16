@@ -20,22 +20,22 @@ if not os.path.exists(output_directory):
     os.makedirs(output_directory)
 logging.info(f"output_directory: {output_directory}")
 
-input_files = os.listdir(img_dir)
-logging.debug(f"input_files: {input_files}")
+input_filenames = os.listdir(img_dir)
+logging.debug(f"input_files: {input_filenames}")
 
 allowed_extensions = ('.tif', '.tiff')
-input_files = [file for file in input_files if file.endswith(allowed_extensions)]
-logging.info(f"input_files: {' '.join(input_files)}")
-logging.info(f"len(input_files): {len(input_files)}")
+input_filenames = [file for file in input_filenames if file.endswith(allowed_extensions)]
+logging.info(f"input_files: {' '.join(input_filenames)}")
+logging.info(f"len(input_files): {len(input_filenames)}")
 
 # input_file = f"{img_dir}/top_mosaic_09cm_area1.tif"  # ./data/vaihingen/imgs/top_mosaic_09cm_area1.tif
-for input_file in input_files:
-    input_path = f"{img_dir}/{input_file}"
+for input_filename in input_filenames:
+    input_path = f"{img_dir}/{input_filename}"
     logging.info(f"input_path: {input_path}")
 
     input_image = Image.open(input_path)
     input_image = np.asarray(input_image)
-    logging.debug(f"image.shape: {input_image.shape}")
+    logging.debug(f"input_image.shape: {input_image.shape}")
 
     patches = patchify(input_image, (patch_size, patch_size, channels), step=patch_size)
     logging.debug(f"patches.shape: {patches.shape}")
@@ -45,7 +45,7 @@ for input_file in input_files:
             patch = patches[i, j, 0]
             patch = Image.fromarray(patch)
 
-            output_file = f"{output_directory}/top_mosaic_09cm_area1_patch_{i}_{j}.tif"
+            output_file = f"{output_directory}/{input_filename}_patch_{i}_{j}.tif"
             patch.save(output_file)
             logging.info(f"Patch {output_file} saved.")
 
