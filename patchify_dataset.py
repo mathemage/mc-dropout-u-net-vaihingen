@@ -25,7 +25,7 @@ logging.debug(f"input_files: {input_files}")
 
 allowed_extensions = ('.tif', '.tiff')
 input_files = [file for file in input_files if file.endswith(allowed_extensions)]
-logging.info(f"input_files: {input_files}")
+logging.info(f"input_files: {' '.join(input_files)}")
 logging.info(f"len(input_files): {len(input_files)}")
 exit(1)
 
