@@ -52,10 +52,11 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging_level, format='[%(levelname)s] %(message)s')
 
     root_directory = "./data/vaihingen"
-    img_directory = f"{root_directory}/imgs"
 
+    img_directory = f"{root_directory}/imgs"
     patchify_directory(img_directory)
 
-    # TODO iterate over targets, too
+    mask_directory = f"{root_directory}/masks"
+    patchify_directory(mask_directory)
 
     # TODO call this script before training
