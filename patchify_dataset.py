@@ -21,14 +21,14 @@ def patchify_directory(directory, patch_size=128, channels=3, allowed_extensions
     logging.info(f"len(filenames): {len(filenames)}")
 
     for filename in filenames:
-        input_path = f"{directory}/{filename}"
-        logging.info(f"input_path: {input_path}")
+        path = f"{directory}/{filename}"
+        logging.info(f"path: {path}")
 
-        input_image = Image.open(input_path)
-        input_image = np.asarray(input_image)
-        logging.debug(f"input_image.shape: {input_image.shape}")
+        image = Image.open(path)
+        image = np.asarray(image)
+        logging.debug(f"image.shape: {image.shape}")
 
-        patches = patchify(input_image, (patch_size, patch_size, channels), step=patch_size)
+        patches = patchify(image, (patch_size, patch_size, channels), step=patch_size)
         logging.debug(f"patches.shape: {patches.shape}")
 
         for i in range(patches.shape[0]):
