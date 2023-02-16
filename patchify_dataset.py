@@ -6,16 +6,16 @@ from PIL import Image
 from patchify import patchify
 
 
-def patchify_directory(img_dir=None, patch_size=128, channels=3, allowed_extensions=('.tif', '.tiff')):
-    if img_dir is None:
-        img_dir = f"{root_dir}/imgs"
+def patchify_directory(directory=None, patch_size=128, channels=3, allowed_extensions=('.tif', '.tiff')):
+    if directory is None:
+        directory = f"{root_dir}/imgs"
 
-    output_directory = f"{img_dir}/patches_{patch_size}x{patch_size}x{channels}"
+    output_directory = f"{directory}/patches_{patch_size}x{patch_size}x{channels}"
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
     logging.info(f"output_directory: {output_directory}")
 
-    input_filenames = os.listdir(img_dir)
+    input_filenames = os.listdir(directory)
     logging.debug(f"input_files: {input_filenames}")
 
     input_filenames = [file for file in input_filenames if file.endswith(allowed_extensions)]
@@ -23,7 +23,7 @@ def patchify_directory(img_dir=None, patch_size=128, channels=3, allowed_extensi
     logging.info(f"len(input_files): {len(input_filenames)}")
 
     for input_filename in input_filenames:
-        input_path = f"{img_dir}/{input_filename}"
+        input_path = f"{directory}/{input_filename}"
         logging.info(f"input_path: {input_path}")
 
         input_image = Image.open(input_path)
