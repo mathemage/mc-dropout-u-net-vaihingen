@@ -12,15 +12,16 @@ def patchify_directory(directory, patch_size=128, channels=3, allowed_extensions
         os.makedirs(output_directory)
     logging.info(f"output_directory: {output_directory}")
 
-    input_filenames = os.listdir(directory)
-    logging.debug(f"input_files: {input_filenames}")
+    filenames = os.listdir(directory)
+    logging.debug(f"filenames: {' '.join(filenames)}")
+    logging.debug(f"len(filenames): {len(filenames)}")
 
-    input_filenames = [file for file in input_filenames if file.endswith(allowed_extensions)]
-    logging.info(f"input_files: {' '.join(input_filenames)}")
-    logging.info(f"len(input_files): {len(input_filenames)}")
+    filenames = [file for file in filenames if file.endswith(allowed_extensions)]
+    logging.info(f"filenames: {' '.join(filenames)}")
+    logging.info(f"len(filenames): {len(filenames)}")
 
-    for input_filename in input_filenames:
-        input_path = f"{directory}/{input_filename}"
+    for filename in filenames:
+        input_path = f"{directory}/{filename}"
         logging.info(f"input_path: {input_path}")
 
         input_image = Image.open(input_path)
@@ -35,7 +36,7 @@ def patchify_directory(directory, patch_size=128, channels=3, allowed_extensions
                 patch = patches[i, j, 0]
                 patch = Image.fromarray(patch)
 
-                basename = os.path.splitext(input_filename)[0]
+                basename = os.path.splitext(filename)[0]
                 output_file = f"{output_directory}/{basename}_patch_{i}_{j}.tif"
                 patch.save(output_file)
                 logging.info(f"Patch {output_file} saved.")
