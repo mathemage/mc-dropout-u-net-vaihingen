@@ -45,7 +45,8 @@ for input_filename in input_filenames:
             patch = patches[i, j, 0]
             patch = Image.fromarray(patch)
 
-            output_file = f"{output_directory}/{input_filename}_patch_{i}_{j}.tif"
+            basename = os.path.splitext(input_filename)[0]
+            output_file = f"{output_directory}/{basename}_patch_{i}_{j}.tif"
             patch.save(output_file)
             logging.info(f"Patch {output_file} saved.")
 
