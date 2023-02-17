@@ -36,8 +36,7 @@ def patchify_directory(directory, patch_size=128, channels=3, allowed_extensions
                 patch = patches[i, j, 0]
                 patch = Image.fromarray(patch)
 
-                basename = os.path.splitext(filename)[0]
-                output_file = f"{output_directory}/{basename}_patch_{i}_{j}.tif"
+                output_file = f"{output_directory}/patch_{i}_{j}_of_{filename}"
                 patch.save(output_file)
                 logging.info(f"Patch {output_file} saved.")
 
