@@ -43,20 +43,23 @@ def patchify_directory(directory, patch_size=128, channels=3, allowed_extensions
 
     output_filenames = os.listdir(output_directory)
     logging.info(f"output_files: {' '.join(output_filenames)}")
-    logging.info(f"len(output_files): {len(output_filenames)}")
+    logging.critical(f"len(output_files): {len(output_filenames)}")
 
 
-if __name__ == "__main__":
-    logging_level = logging.INFO
-    # logging_level = logging.DEBUG
-    logging.basicConfig(level=logging_level, format='[%(levelname)s] %(message)s')
-
-    root_directory = "./data/vaihingen"
-
+def patchify_dataset(root_directory="./data/vaihingen"):
     img_directory = f"{root_directory}/imgs"
     patchify_directory(img_directory)
 
     mask_directory = f"{root_directory}/masks"
     patchify_directory(mask_directory)
+
+
+if __name__ == "__main__":
+    logging_level = logging.INFO
+    # logging_level = logging.DEBUG
+    # logging_level = logging.CRITICAL
+    logging.basicConfig(level=logging_level, format='[%(levelname)s] %(message)s')
+
+    patchify_dataset()
 
     # TODO call this script before training
