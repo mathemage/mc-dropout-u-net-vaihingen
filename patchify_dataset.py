@@ -46,11 +46,13 @@ def patchify_directory(directory, patch_size=128, channels=3, allowed_extensions
     logging.critical(f"len(output_files): {len(output_filenames)}")
 
 
-def patchify_dataset(root_directory="./data/vaihingen"):
-    img_directory = f"{root_directory}/imgs"
+def patchify_dataset(root_directory="./data/vaihingen", img_directory=None, mask_directory=None):
+    if img_directory is None:
+        img_directory = f"{root_directory}/imgs"
     patchify_directory(img_directory)
 
-    mask_directory = f"{root_directory}/masks"
+    if mask_directory is None:
+        mask_directory = f"{root_directory}/masks"
     patchify_directory(mask_directory)
 
 
