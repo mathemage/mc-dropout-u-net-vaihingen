@@ -8,6 +8,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 import wandb
+from patchify_dataset import patchify_dataset
 from rgb_to_categorical_vaihingen import rgb_to_onehot
 from test_on_vaihingen import test_net
 
@@ -185,6 +186,8 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     logging.info(f'Using device {device}')
+
+    patchify_dataset()
 
     # Change here to adapt to your data
     # n_channels=3 for RGB images

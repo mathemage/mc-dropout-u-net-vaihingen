@@ -30,4 +30,4 @@ logging.info(f"output.size(): {output.size()}")  # TODO understand
 
 # From https://pytorch.org/docs/stable/generated/torch.nn.Unfold.html
 unfold_3d = nn.Unfold(kernel_size=(2, 2))(x_3d)
-logging.info(f"unfold_3d: {unfold_3d}")  # TODO check here
+logging.info(f"unfold_3d: {unfold_3d}")
