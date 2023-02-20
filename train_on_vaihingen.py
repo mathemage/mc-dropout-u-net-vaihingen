@@ -1,5 +1,6 @@
 import argparse
 import logging
+import os
 import sys
 from pathlib import Path
 
@@ -187,7 +188,13 @@ if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     logging.info(f'Using device {device}')
 
-    patchify_dataset()
+    dir_img_is_valid = os.path.isdir(dir_img)
+    dir_mask_is_valid = os.path.isdir(dir_mask)
+    if not (dir_img_is_valid and dir_mask_is_valid):
+        patchify_dataset()
+    logging.info(f"dir_img: {dir_img}")
+    logging.info(f"dir_mask: {dir_mask}")
+    # exit(1)
 
     # Change here to adapt to your data
     # n_channels=3 for RGB images
