@@ -1,5 +1,6 @@
 import argparse
 import logging
+import os
 import sys
 from pathlib import Path
 
@@ -8,6 +9,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 import wandb
+from patchify_dataset import patchify_dataset
 from rgb_to_categorical_vaihingen import rgb_to_onehot
 from test_on_vaihingen import test_net
 
@@ -22,8 +24,11 @@ from utils.dice_score import dice_loss
 from evaluate_on_vaihingen import evaluate
 from unet import UNet
 
-dir_img = Path('./data/vaihingen/imgs/')
-dir_mask = Path('./data/vaihingen/masks/')
+# dir_img = Path('./data/vaihingen/imgs/')
+# dir_mask = Path('./data/vaihingen/masks/')
+dir_img = Path('./data/vaihingen/imgs/patches_128x128x3/')
+dir_mask = Path('./data/vaihingen/masks/patches_128x128x3/')
+
 dir_checkpoint = Path('./checkpoints/vaihingen/')
 
 
@@ -165,8 +170,8 @@ def get_args():
 
     # This data set contains 33 images with associated DSM. 16 ground-truth images are provided for
     # training.
-    ONE_SIXTEENTH = 1.0/16.0  # We use one of them as validation set and the remaining images as training models.
-    parser.add_argument('--validation', '-v', dest='val', type=float, default=ONE_SIXTEENTH * 100,
+    one_sixteenth = 1.0/16.0  # We use one of them as validation set and the remaining images as training models.
+    parser.add_argument('--validation', '-v', dest='val', type=float, default=one_sixteenth * 100,
                         help='Percent of the data that is used as validation (0-100)')
 
     parser.add_argument('--amp', action='store_true', default=False, help='Use mixed precision')
@@ -180,8 +185,18 @@ if __name__ == '__main__':
     args = get_args()
 
     logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+    # logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     logging.info(f'Using device {device}')
+
+    dir_img_is_valid = os.path.isdir(dir_img) and os.listdir(dir_img)
+    dir_mask_is_valid = os.path.isdir(dir_mask) and os.listdir(dir_mask)
+    logging.debug(f"dir_img_is_valid == {dir_img_is_valid}")
+    logging.debug(f"dir_mask_is_valid == {dir_mask_is_valid}")
+    if not (dir_img_is_valid and dir_mask_is_valid):
+        patchify_dataset()
+    logging.info(f"dir_img: {dir_img}")
+    logging.info(f"dir_mask: {dir_mask}")
 
     # Change here to adapt to your data
     # n_channels=3 for RGB images
@@ -198,6 +213,7 @@ if __name__ == '__main__':
         logging.info(f'Model loaded from {args.load}')
 
     net.to(device=device)
+
     logging.info('Training phase:')
     try:
         train_net(net=net,
