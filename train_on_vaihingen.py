@@ -185,16 +185,18 @@ if __name__ == '__main__':
     args = get_args()
 
     logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+    # logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     logging.info(f'Using device {device}')
 
-    dir_img_is_valid = os.path.isdir(dir_img)
-    dir_mask_is_valid = os.path.isdir(dir_mask)
+    dir_img_is_valid = os.path.isdir(dir_img) and os.listdir(dir_img)
+    dir_mask_is_valid = os.path.isdir(dir_mask) and os.listdir(dir_mask)
+    logging.debug(f"dir_img_is_valid == {dir_img_is_valid}")
+    logging.debug(f"dir_mask_is_valid == {dir_mask_is_valid}")
     if not (dir_img_is_valid and dir_mask_is_valid):
         patchify_dataset()
     logging.info(f"dir_img: {dir_img}")
     logging.info(f"dir_mask: {dir_mask}")
-    # exit(1)
 
     # Change here to adapt to your data
     # n_channels=3 for RGB images
