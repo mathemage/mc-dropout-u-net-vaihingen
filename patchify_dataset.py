@@ -62,5 +62,3 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging_level, format='[%(levelname)s] %(message)s')
 
     patchify_dataset()
-
-    # TODO call this script before training
