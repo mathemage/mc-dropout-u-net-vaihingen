@@ -21,7 +21,11 @@ dir_top = "../data/vaihingen/top/"
 logging.info(f"dir_top == {dir_top}:\n{' '.join(os.listdir(dir_top))}")
 dir_ground_truth = "../data/vaihingen/ground_truth/"
 logging.info(f"dir_ground_truth == {dir_ground_truth}:\n{' '.join(os.listdir(dir_top))}")
-exit(1)
+
+dir_size = min(len(os.listdir(dir_top)), len(os.listdir(dir_ground_truth)))
+all_areas = range(1, dir_size)
+logging.info(f"Total of {dir_size} areas.")
+# exit(1)
 
 dir_train_img = f"../data/vaihingen/imgs/"
 for area in ground_truth_areas:
