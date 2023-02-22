@@ -34,6 +34,13 @@ for area in ground_truth_areas:
     logging.debug(f"filepath ==  {filepath}")
     shutil.copy(filepath, dir_train_img)
 
+    source_filepath = f"{dir_ground_truth}/{filename}"
+    logging.debug(f"source_filepath == {source_filepath}")
+    destination_filename = f"{trunk_name}{area}_mask.tif"
+    destination_filepath = f"{dir_train_mask}/{destination_filename}"
+    logging.debug(f"destination_filename ==  {destination_filename}")
+    shutil.copy(source_filepath, destination_filepath)
+
 logging.info(f"dir_train_img == {dir_train_img}:\n{' '.join(os.listdir(dir_train_img))}")
 logging.info(f"dir_train_mask == {dir_train_mask}:\n{' '.join(os.listdir(dir_train_mask))}")
 
