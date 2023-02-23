@@ -26,25 +26,23 @@ logging.info(f"dir_top == {dir_top}:\n{' '.join(os.listdir(dir_top))}")
 dir_ground_truth = "../data/vaihingen/ground_truth/"
 logging.info(f"dir_ground_truth == {dir_ground_truth}:\n{' '.join(os.listdir(dir_top))}")
 
-dir_train_img = "../data/vaihingen/trainset/imgs/"
-dir_train_mask = "../data/vaihingen/trainset/masks/"
 for area in ground_truth_areas:
+    dir_inputs = "../data/vaihingen/trainset/imgs/"
     filename = f"{trunk_name}{area}.tif"
     filepath = f"{dir_top}/{filename}"
-    logging.debug(f"filepath ==  {filepath}")
-    shutil.copy(filepath, dir_train_img)
+    logging.debug(f"filepath == {filepath}")
+    shutil.copy(filepath, dir_inputs)
 
+    dir_targets = "../data/vaihingen/trainset/masks/"
     source_filepath = f"{dir_ground_truth}/{filename}"
     logging.debug(f"source_filepath == {source_filepath}")
     destination_filename = f"{trunk_name}{area}_mask.tif"
-    destination_filepath = f"{dir_train_mask}/{destination_filename}"
-    logging.debug(f"destination_filename ==  {destination_filename}")
+    destination_filepath = f"{dir_targets}/{destination_filename}"
+    logging.debug(f"destination_filename == {destination_filename}")
     shutil.copy(source_filepath, destination_filepath)
 
-logging.info(f"dir_train_img == {dir_train_img}:\n{' '.join(os.listdir(dir_train_img))}")
-logging.info(f"dir_train_mask == {dir_train_mask}:\n{' '.join(os.listdir(dir_train_mask))}")
-
-# exit(1)
+logging.info(f"dir_inputs == {dir_inputs}:\n{' '.join(os.listdir(dir_inputs))}")
+logging.info(f"dir_targets == {dir_targets}:\n{' '.join(os.listdir(dir_targets))}")
 
 dir_test_img = Path('./data/vaihingen/testset/imgs/')
 dir_test_mask = Path('./data/vaihingen/testset/masks/')
