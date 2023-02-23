@@ -26,23 +26,25 @@ logging.info(f"dir_top == {dir_top}:\n{' '.join(os.listdir(dir_top))}")
 dir_ground_truth = "../data/vaihingen/ground_truth/"
 logging.info(f"dir_ground_truth == {dir_ground_truth}:\n{' '.join(os.listdir(dir_top))}")
 
-for area in ground_truth_areas:
-    dir_inputs = "../data/vaihingen/trainset/imgs/"
-    filename = f"{trunk_name}{area}.tif"
-    filepath = f"{dir_top}/{filename}"
-    logging.debug(f"filepath == {filepath}")
-    shutil.copy(filepath, dir_inputs)
+named_areas = {"trainset": ground_truth_areas, "testset": test_areas}
+for set_name, area_list in named_areas.items():
+    logging.info(f"set_name: {set_name}")
+    logging.info(f"area_list: {area_list}")
 
-    dir_targets = "../data/vaihingen/trainset/masks/"
-    source_filepath = f"{dir_ground_truth}/{filename}"
-    logging.debug(f"source_filepath == {source_filepath}")
-    destination_filename = f"{trunk_name}{area}_mask.tif"
-    destination_filepath = f"{dir_targets}/{destination_filename}"
-    logging.debug(f"destination_filename == {destination_filename}")
-    shutil.copy(source_filepath, destination_filepath)
+    for area in area_list:
+        dir_inputs = f"../data/vaihingen/{set_name}/imgs/"
+        filename = f"{trunk_name}{area}.tif"
+        filepath = f"{dir_top}/{filename}"
+        logging.debug(f"filepath == {filepath}")
+        shutil.copy(filepath, dir_inputs)
 
-logging.info(f"dir_inputs == {dir_inputs}:\n{' '.join(os.listdir(dir_inputs))}")
-logging.info(f"dir_targets == {dir_targets}:\n{' '.join(os.listdir(dir_targets))}")
+        dir_targets = f"../data/vaihingen/{set_name}/masks/"
+        source_filepath = f"{dir_ground_truth}/{filename}"
+        logging.debug(f"source_filepath == {source_filepath}")
+        destination_filename = f"{trunk_name}{area}_mask.tif"
+        destination_filepath = f"{dir_targets}/{destination_filename}"
+        logging.debug(f"destination_filename == {destination_filename}")
+        shutil.copy(source_filepath, destination_filepath)
 
-dir_test_img = Path('./data/vaihingen/testset/imgs/')
-dir_test_mask = Path('./data/vaihingen/testset/masks/')
+    logging.info(f"dir_inputs == {dir_inputs}:\n{' '.join(os.listdir(dir_inputs))}")
+    logging.info(f"dir_targets == {dir_targets}:\n{' '.join(os.listdir(dir_targets))}")
