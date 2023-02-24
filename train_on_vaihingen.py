@@ -26,8 +26,8 @@ from unet import UNet
 
 # dir_img = Path('./data/vaihingen/imgs/')
 # dir_mask = Path('./data/vaihingen/masks/')
-dir_img = Path('./data/vaihingen/imgs/patches_128x128x3/')
-dir_mask = Path('./data/vaihingen/masks/patches_128x128x3/')
+dir_img = Path('./data/vaihingen/trainset/imgs/patches_128x128x3/')
+dir_mask = Path('./data/vaihingen/trainset/masks/patches_128x128x3/')
 
 dir_checkpoint = Path('./checkpoints/vaihingen/')
 
@@ -191,9 +191,10 @@ if __name__ == '__main__':
 
     dir_img_is_valid = os.path.isdir(dir_img) and os.listdir(dir_img)
     dir_mask_is_valid = os.path.isdir(dir_mask) and os.listdir(dir_mask)
-    logging.debug(f"dir_img_is_valid == {dir_img_is_valid}")
-    logging.debug(f"dir_mask_is_valid == {dir_mask_is_valid}")
+    logging.info(f"dir_img_is_valid == {dir_img_is_valid}")
+    logging.info(f"dir_mask_is_valid == {dir_mask_is_valid}")
     if not (dir_img_is_valid and dir_mask_is_valid):
+        logging.critical(f"Patchifying dataset:")
         patchify_dataset()
     logging.info(f"dir_img: {dir_img}")
     logging.info(f"dir_mask: {dir_mask}")
