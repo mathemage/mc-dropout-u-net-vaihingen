@@ -189,8 +189,8 @@ if __name__ == '__main__':
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     logging.info(f'Using device {device}')
 
-    dir_img_is_valid = os.path.isdir(dir_img) and os.listdir(dir_img)
-    dir_mask_is_valid = os.path.isdir(dir_mask) and os.listdir(dir_mask)
+    dir_img_is_valid = os.path.isdir(dir_img) and (os.listdir(dir_img) is not None)
+    dir_mask_is_valid = os.path.isdir(dir_mask) and (os.listdir(dir_mask) is not None)
     logging.info(f"dir_img_is_valid == {dir_img_is_valid}")
     logging.info(f"dir_mask_is_valid == {dir_mask_is_valid}")
     if not (dir_img_is_valid and dir_mask_is_valid):
