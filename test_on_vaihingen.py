@@ -36,10 +36,9 @@ def test_net(net,
 
     # (Initialize logging)
     experiment = wandb.init(project='U-Net', resume='allow', anonymous='must')
-    experiment.config.update(dict(batch_size=batch_size, img_scale=img_scale, amp=amp))
 
     logging.info(f'''Starting testing:
-        Batch size:      {batch_size}
+        Test batch size: {batch_size}
         Device:          {device.type}
         Images scaling:  {img_scale}
         Mixed Precision: {amp}

@@ -232,8 +232,9 @@ if __name__ == '__main__':
 
     logging.info('Testing phase:')
     try:
+        # test_batch_size = 1
         test_net(net=net,
-                 batch_size=args.batch_size,
+                 # batch_size=test_batch_size,
                  device=device,
                  img_scale=args.scale,
                  amp=args.amp)
