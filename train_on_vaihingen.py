@@ -76,7 +76,8 @@ def train_net(net,
     ''')
 
     # 4. Set up the optimizer, the loss, the learning rate scheduler and the loss scaling for AMP
-    optimizer = optim.RMSprop(net.parameters(), lr=learning_rate, weight_decay=1e-8, momentum=0.9)
+    # optimizer = optim.RMSprop(net.parameters(), lr=learning_rate, weight_decay=1e-8, momentum=0.9)
+    optimizer = optim.Adam(net.parameters(), lr=learning_rate)
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max', patience=2)  # goal: maximize Dice score
     grad_scaler = torch.cuda.amp.GradScaler(enabled=amp)
     criterion = nn.CrossEntropyLoss()
@@ -232,9 +233,7 @@ if __name__ == '__main__':
 
     logging.info('Testing phase:')
     try:
-        # test_batch_size = 1
         test_net(net=net,
-                 # batch_size=test_batch_size,
                  device=device,
                  img_scale=args.scale,
                  amp=args.amp)
