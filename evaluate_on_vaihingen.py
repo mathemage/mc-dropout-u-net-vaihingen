@@ -1,15 +1,17 @@
 import torch
 import torch.nn.functional as F
+from torch import nn
 from tqdm import tqdm
 
 from rgb_to_categorical_vaihingen import rgb_to_onehot
-from utils.dice_score import multiclass_dice_coeff, dice_coeff
+from utils.dice_score import multiclass_dice_coeff, dice_coeff, dice_loss
 
 
 def evaluate(net, dataloader, device):
     net.eval()
     num_val_batches = len(dataloader)
     dice_score = 0
+    criterion = nn.CrossEntropyLoss()
 
     # iterate over the validation set
     for batch in tqdm(dataloader, total=num_val_batches, desc='Validation round', unit='batch', leave=False):
@@ -35,8 +37,14 @@ def evaluate(net, dataloader, device):
                 dice_score += multiclass_dice_coeff(mask_pred[:, 1:, ...], mask_true[:, 1:, ...],
                                                     reduce_batch_first=False)
 
+            # loss = criterion(mask_pred, mask_true) \
+            #        + dice_loss(F.softmax(mask_pred, dim=1).float(),
+            #                    F.one_hot(mask_true, net.n_classes).permute(0, 3, 1, 2).float(),
+            #                    multiclass=True)
+            loss = criterion(mask_pred, mask_true)
+
     net.train()
 
     # Fixes a potential division by zero error
-    result = dice_score if num_val_batches == 0 else dice_score / num_val_batches
-    return result, result
+    score = dice_score if num_val_batches == 0 else dice_score / num_val_batches
+    return score, loss
