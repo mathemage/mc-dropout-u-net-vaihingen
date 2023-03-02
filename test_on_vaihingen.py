@@ -50,9 +50,10 @@ def test_net(net,
         tag = tag.replace('/', '.')
         histograms['Weights/' + tag] = wandb.Histogram(value.data.cpu())
 
-    test_score = evaluate(net, test_loader, device)
+    test_score, test_loss = evaluate(net, test_loader, device)
 
     logging.info('Test Dice score: {}'.format(test_score))
+    logging.info('Test loss: {}'.format(test_loss))
     experiment.log({
         'test Dice': test_score,
         **histograms

@@ -139,6 +139,7 @@ def train_net(net,
                         experiment.log({
                             'learning rate': optimizer.param_groups[0]['lr'],
                             'validation Dice': val_score,
+                            'validation loss': val_loss,
                             'images': wandb.Image(images[0].cpu()),
                             'masks': {
                                 'true': wandb.Image(true_masks[0].float().cpu()),
