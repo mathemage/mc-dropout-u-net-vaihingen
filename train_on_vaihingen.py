@@ -12,6 +12,7 @@ import wandb
 from patchify_dataset import patchify_dataset
 from rgb_to_categorical_vaihingen import rgb_to_onehot
 from test_on_vaihingen import test_net
+from utils.EarlyStopper import EarlyStopper
 
 wandb.init(project="MCD-U-Net-Vaihingen", entity="mathemage")
 
@@ -86,6 +87,9 @@ def train_net(net,
     global_step = 0
 
     # 5. Begin training
+    early_stopper = EarlyStopper(patience=20)  # also perform early stopping (stop the training if no decay in the
+    early_stop = False
+    # validation loss is observed in the 20 last epochs)
     for epoch in range(1, epochs + 1):
         net.train()
         epoch_loss = 0
@@ -137,6 +141,8 @@ def train_net(net,
 
                         val_score, val_loss = evaluate(net, val_loader, device)
                         scheduler.step(val_loss)
+                        if val_loss is not None and early_stopper.early_stop(val_loss):
+                            early_stop = True
 
                         logging.info('Validation Dice score: {}'.format(val_score))
                         experiment.log({
@@ -150,6 +156,7 @@ def train_net(net,
                             },
                             'step': global_step,
                             'epoch': epoch,
+                            'early_stop': early_stop,
                             **histograms
                         })
 
@@ -161,6 +168,9 @@ def train_net(net,
             Path(dir_checkpoint).mkdir(parents=True, exist_ok=True)
             torch.save(net.state_dict(), str(dir_checkpoint / 'checkpoint_epoch{}.pth'.format(epoch)))
             logging.info(f'Checkpoint {epoch} saved!')
+
+        if early_stop:
+            break
 
 
 def get_args():
@@ -174,7 +184,7 @@ def get_args():
 
     # This data set contains 33 images with associated DSM. 16 ground-truth images are provided for
     # training.
-    one_sixteenth = 1.0/16.0  # We use one of them as validation set and the remaining images as training models.
+    one_sixteenth = 1.0 / 16.0  # We use one of them as validation set and the remaining images as training models.
     parser.add_argument('--validation', '-v', dest='val', type=float, default=one_sixteenth * 100,
                         help='Percent of the data that is used as validation (0-100)')
 

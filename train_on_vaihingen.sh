@@ -11,4 +11,5 @@
 #  Clutter/background (RGB: 255, 0, 0)
 #python train_on_vaihingen.py --amp --classes 6 --epochs 5 --batch-size 64 --learning-rate 0.001
 #python train_on_vaihingen.py --amp --classes 6 --epochs 1 --batch-size 64 --learning-rate 0.001
-python train_on_vaihingen.py --amp --classes 6 --epochs 20 --batch-size 64 --learning-rate 0.001
+#python train_on_vaihingen.py --amp --classes 6 --epochs 32 --batch-size 64 --learning-rate 0.001
+python train_on_vaihingen.py --amp --classes 6 --epochs 128 --batch-size 64 --learning-rate 0.001
