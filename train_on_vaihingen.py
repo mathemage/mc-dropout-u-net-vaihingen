@@ -88,7 +88,7 @@ def train_net(net,
 
     # 5. Begin training
     early_stopper = EarlyStopper(patience=20)  # also perform early stopping (stop the training if no decay in the
-    early_stop = False
+    early_stop = 0
     # validation loss is observed in the 20 last epochs)
     for epoch in range(1, epochs + 1):
         net.train()
@@ -129,39 +129,42 @@ def train_net(net,
                 })
                 pbar.set_postfix(**{'loss (batch)': loss.item()})
 
-                # Evaluation round
-                division_step = (n_train // (10 * batch_size))
-                if division_step > 0:
-                    if global_step % division_step == 0:
-                        histograms = {}
-                        for tag, value in net.named_parameters():
-                            tag = tag.replace('/', '.')
-                            histograms['Weights/' + tag] = wandb.Histogram(value.data.cpu())
-                            histograms['Gradients/' + tag] = wandb.Histogram(value.grad.data.cpu())
-
-                        val_score, val_loss = evaluate(net, val_loader, device)
-                        scheduler.step(val_loss)
-                        if val_loss is not None and early_stopper.early_stop(val_loss):
-                            early_stop = True
-
-                        logging.info('Validation Dice score: {}'.format(val_score))
-                        experiment.log({
-                            'learning rate': optimizer.param_groups[0]['lr'],
-                            'validation Dice': val_score,
-                            'validation loss': val_loss,
-                            'images': wandb.Image(images[0].cpu()),
-                            'masks': {
-                                'true': wandb.Image(true_masks[0].float().cpu()),
-                                'pred': wandb.Image(masks_pred.argmax(dim=1)[0].float().cpu()),
-                            },
-                            'step': global_step,
-                            'epoch': epoch,
-                            **histograms
-                        })
+                experiment.log({
+                    'learning rate': optimizer.param_groups[0]['lr'],
+                    'images': wandb.Image(images[0].cpu()),
+                    'masks': {
+                        'true': wandb.Image(true_masks[0].float().cpu()),
+                        'pred': wandb.Image(masks_pred.argmax(dim=1)[0].float().cpu()),
+                    },
+                    'step': global_step,
+                    'epoch': epoch,
+                })
 
                 # optimize memory by deallocating on CUDA
                 del true_masks
                 torch.cuda.empty_cache()
+
+            # Evaluation round
+            histograms = {}
+            for tag, value in net.named_parameters():
+                tag = tag.replace('/', '.')
+                histograms['Weights/' + tag] = wandb.Histogram(value.data.cpu())
+                histograms['Gradients/' + tag] = wandb.Histogram(value.grad.data.cpu())
+
+            val_score, val_loss = evaluate(net, val_loader, device)
+            scheduler.step(val_loss)
+            if val_loss is not None and early_stopper.early_stop(val_loss):
+                logging.critical(f"Early stop at epoch: {epoch}")
+                early_stop = 1
+
+            logging.info('Validation Dice score: {}'.format(val_score))
+            experiment.log({
+                'validation Dice': val_score,
+                'validation loss': val_loss,
+                'epoch': epoch,
+                'early_stop': early_stop,
+                **histograms
+            })
 
         if save_checkpoint:
             Path(dir_checkpoint).mkdir(parents=True, exist_ok=True)
