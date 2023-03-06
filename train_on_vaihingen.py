@@ -156,7 +156,6 @@ def train_net(net,
                             },
                             'step': global_step,
                             'epoch': epoch,
-                            'early_stop': early_stop,
                             **histograms
                         })
 
