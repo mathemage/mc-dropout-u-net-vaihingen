@@ -159,7 +159,9 @@ def train_net(net,
             val_score, val_loss = evaluate(net, val_loader, device)
             scheduler.step(val_loss)
             if val_loss is not None and early_stopper.early_stop(val_loss):
-                logging.critical(f"Early stop at epoch: {epoch}")
+                logging.critical(f"Early stop at epoch {epoch}. val_loss == {val_loss}, val_score == {val_score}")
+                logging.info(f"val_loss == {val_loss}\n"
+                             f"val_score == {val_score}")
                 early_stop = 1
 
             logging.info('Validation Dice score: {}'.format(val_score))
