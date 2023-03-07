@@ -129,16 +129,21 @@ def train_net(net,
                 })
                 pbar.set_postfix(**{'loss (batch)': loss.item()})
 
-                experiment.log({
-                    'learning rate': optimizer.param_groups[0]['lr'],
-                    'images': wandb.Image(images[0].cpu()),
-                    'masks': {
-                        'true': wandb.Image(true_masks[0].float().cpu()),
-                        'pred': wandb.Image(masks_pred.argmax(dim=1)[0].float().cpu()),
-                    },
-                    'step': global_step,
-                    'epoch': epoch,
-                })
+                # log only once a while, not after every training step
+                log_wandb_every_steps = 10
+                division_step = (n_train // (log_wandb_every_steps * batch_size))
+                if division_step > 0:
+                    if global_step % division_step == 0:
+                        experiment.log({
+                            'learning rate': optimizer.param_groups[0]['lr'],
+                            'images': wandb.Image(images[0].cpu()),
+                            'masks': {
+                                'true': wandb.Image(true_masks[0].float().cpu()),
+                                'pred': wandb.Image(masks_pred.argmax(dim=1)[0].float().cpu()),
+                            },
+                            'step': global_step,
+                            'epoch': epoch,
+                        })
 
                 # optimize memory by deallocating on CUDA
                 del true_masks
