@@ -191,8 +191,9 @@ def get_args():
 
     # This data set contains 33 images with associated DSM. 16 ground-truth images are provided for
     # training.
-    one_sixteenth = 1.0 / 16.0  # We use one of them as validation set and the remaining images as training models.
-    parser.add_argument('--validation', '-v', dest='val', type=float, default=one_sixteenth * 100,
+    # one_sixteenth = 1.0 / 16.0  # We use one of them as validation set and the remaining images as training models.
+    one_tenth = 0.1
+    parser.add_argument('--validation', '-v', dest='val', type=float, default=one_tenth * 100,
                         help='Percent of the data that is used as validation (0-100)')
 
     parser.add_argument('--amp', action='store_true', default=False, help='Use mixed precision')
