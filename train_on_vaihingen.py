@@ -12,6 +12,7 @@ import wandb
 from patchify_dataset import patchify_dataset
 from rgb_to_categorical_vaihingen import rgb_to_onehot
 from test_on_vaihingen import test_net
+from utils.EarlyStopper import EarlyStopper
 
 wandb.init(project="MCD-U-Net-Vaihingen", entity="mathemage")
 
@@ -36,7 +37,7 @@ def train_net(net,
               device,
               epochs: int = 5,
               batch_size: int = 1,
-              learning_rate: float = 1e-5,
+              learning_rate: float = 1e-3,
               val_percent: float = 0.1,
               save_checkpoint: bool = True,
               img_scale: float = 0.5,
@@ -76,13 +77,18 @@ def train_net(net,
     ''')
 
     # 4. Set up the optimizer, the loss, the learning rate scheduler and the loss scaling for AMP
-    optimizer = optim.RMSprop(net.parameters(), lr=learning_rate, weight_decay=1e-8, momentum=0.9)
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'max', patience=2)  # goal: maximize Dice score
+    optimizer = optim.Adam(net.parameters(), lr=learning_rate)
+    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, 'min', factor=0.1, patience=10, verbose=True)
+    # learning rate is reduced on the plateau (learning rate divided by 10  if  no  decay  in  the  validation  loss  is
+    #  observed  in the 10 last epochs)
     grad_scaler = torch.cuda.amp.GradScaler(enabled=amp)
     criterion = nn.CrossEntropyLoss()
     global_step = 0
 
     # 5. Begin training
+    early_stopper = EarlyStopper(patience=20)  # also perform early stopping (stop the training if no decay in the
+    early_stop = 0
+    # validation loss is observed in the 20 last epochs)
     for epoch in range(1, epochs + 1):
         net.train()
         epoch_loss = 0
@@ -122,23 +128,13 @@ def train_net(net,
                 })
                 pbar.set_postfix(**{'loss (batch)': loss.item()})
 
-                # Evaluation round
-                division_step = (n_train // (10 * batch_size))
+                # log only once a while, not after every training step
+                log_wandb_every_steps = 10
+                division_step = (n_train // (log_wandb_every_steps * batch_size))
                 if division_step > 0:
                     if global_step % division_step == 0:
-                        histograms = {}
-                        for tag, value in net.named_parameters():
-                            tag = tag.replace('/', '.')
-                            histograms['Weights/' + tag] = wandb.Histogram(value.data.cpu())
-                            histograms['Gradients/' + tag] = wandb.Histogram(value.grad.data.cpu())
-
-                        val_score = evaluate(net, val_loader, device)
-                        scheduler.step(val_score)
-
-                        logging.info('Validation Dice score: {}'.format(val_score))
                         experiment.log({
                             'learning rate': optimizer.param_groups[0]['lr'],
-                            'validation Dice': val_score,
                             'images': wandb.Image(images[0].cpu()),
                             'masks': {
                                 'true': wandb.Image(true_masks[0].float().cpu()),
@@ -146,32 +142,59 @@ def train_net(net,
                             },
                             'step': global_step,
                             'epoch': epoch,
-                            **histograms
                         })
 
                 # optimize memory by deallocating on CUDA
                 del true_masks
                 torch.cuda.empty_cache()
 
+            # Evaluation round
+            histograms = {}
+            for tag, value in net.named_parameters():
+                tag = tag.replace('/', '.')
+                histograms['Weights/' + tag] = wandb.Histogram(value.data.cpu())
+                histograms['Gradients/' + tag] = wandb.Histogram(value.grad.data.cpu())
+
+            val_score, val_loss = evaluate(net, val_loader, device)
+            scheduler.step(val_loss)
+            if val_loss is not None and early_stopper.early_stop(val_loss):
+                logging.critical(f"Early stop at epoch {epoch}. val_loss == {val_loss}, val_score == {val_score}")
+                logging.info(f"val_loss == {val_loss}\n"
+                             f"val_score == {val_score}")
+                early_stop = 1
+
+            logging.info('Validation Dice score: {}'.format(val_score))
+            experiment.log({
+                'validation Dice': val_score,
+                'validation loss': val_loss,
+                'epoch': epoch,
+                'early_stop': early_stop,
+                **histograms
+            })
+
         if save_checkpoint:
             Path(dir_checkpoint).mkdir(parents=True, exist_ok=True)
             torch.save(net.state_dict(), str(dir_checkpoint / 'checkpoint_epoch{}.pth'.format(epoch)))
             logging.info(f'Checkpoint {epoch} saved!')
 
+        if early_stop:
+            break
+
 
 def get_args():
     parser = argparse.ArgumentParser(description='Train the UNet on images and target masks')
     parser.add_argument('--epochs', '-e', metavar='E', type=int, default=5, help='Number of epochs')
-    parser.add_argument('--batch-size', '-b', dest='batch_size', metavar='B', type=int, default=1, help='Batch size')
-    parser.add_argument('--learning-rate', '-l', metavar='LR', type=float, default=1e-5,
+    parser.add_argument('--batch-size', '-b', dest='batch_size', metavar='B', type=int, default=64, help='Batch size')
+    parser.add_argument('--learning-rate', '-l', metavar='LR', type=float, default=1e-3,
                         help='Learning rate', dest='lr')
     parser.add_argument('--load', '-f', type=str, default=False, help='Load model from a .pth file')
     parser.add_argument('--scale', '-s', type=float, default=0.5, help='Downscaling factor of the images')
 
     # This data set contains 33 images with associated DSM. 16 ground-truth images are provided for
     # training.
-    one_sixteenth = 1.0/16.0  # We use one of them as validation set and the remaining images as training models.
-    parser.add_argument('--validation', '-v', dest='val', type=float, default=one_sixteenth * 100,
+    # one_sixteenth = 1.0 / 16.0  # We use one of them as validation set and the remaining images as training models.
+    one_tenth = 0.1
+    parser.add_argument('--validation', '-v', dest='val', type=float, default=one_tenth * 100,
                         help='Percent of the data that is used as validation (0-100)')
 
     parser.add_argument('--amp', action='store_true', default=False, help='Use mixed precision')
@@ -233,7 +256,6 @@ if __name__ == '__main__':
     logging.info('Testing phase:')
     try:
         test_net(net=net,
-                 batch_size=args.batch_size,
                  device=device,
                  img_scale=args.scale,
                  amp=args.amp)

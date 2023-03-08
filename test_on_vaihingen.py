@@ -36,10 +36,9 @@ def test_net(net,
 
     # (Initialize logging)
     experiment = wandb.init(project='U-Net', resume='allow', anonymous='must')
-    experiment.config.update(dict(batch_size=batch_size, img_scale=img_scale, amp=amp))
 
     logging.info(f'''Starting testing:
-        Batch size:      {batch_size}
+        Test batch size: {batch_size}
         Device:          {device.type}
         Images scaling:  {img_scale}
         Mixed Precision: {amp}
@@ -51,9 +50,10 @@ def test_net(net,
         tag = tag.replace('/', '.')
         histograms['Weights/' + tag] = wandb.Histogram(value.data.cpu())
 
-    test_score = evaluate(net, test_loader, device)
+    test_score, test_loss = evaluate(net, test_loader, device)
 
     logging.info('Test Dice score: {}'.format(test_score))
+    logging.info('Test loss: {}'.format(test_loss))
     experiment.log({
         'test Dice': test_score,
         **histograms
