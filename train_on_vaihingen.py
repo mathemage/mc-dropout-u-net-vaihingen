@@ -102,9 +102,6 @@ def train_net(net,
                 true_masks = batch['mask']
                 true_masks = rgb_to_onehot(rgb_target=true_masks, quiet=True)
 
-                images = preprocessors(images)
-                true_masks = preprocessors(true_masks)
-
                 assert images.shape[1] == net.n_channels, \
                     f'Network has been defined with {net.n_channels} input channels, ' \
                     f'but loaded images have {images.shape[1]} channels. Please check that ' \
@@ -112,6 +109,9 @@ def train_net(net,
 
                 images = images.to(device=device, dtype=torch.float32)
                 true_masks = true_masks.to(device=device, dtype=torch.long)
+
+                images = preprocessors(images)
+                true_masks = preprocessors(true_masks)
 
                 with torch.cuda.amp.autocast(enabled=amp):
                     masks_pred = net(images)
