@@ -33,15 +33,10 @@ dir_mask = Path('./data/vaihingen/trainset/masks/patches_128x128x3/')
 dir_checkpoint = Path('./checkpoints/vaihingen/')
 
 
-def train_net(net,
-              device,
-              epochs: int = 5,
-              batch_size: int = 1,
-              learning_rate: float = 1e-3,
-              val_percent: float = 0.1,
-              save_checkpoint: bool = True,
-              img_scale: float = 0.5,
-              amp: bool = False):
+def train_net(
+        net, device, epochs: int = 5, batch_size: int = 1, learning_rate: float = 1e-3, val_percent: float = 0.1,
+        save_checkpoint: bool = True, img_scale: float = 0.5, amp: bool = False, use_histograms=False
+):
     # 1. Create dataset
     try:
         dataset = CarvanaDataset(dir_img, dir_mask, img_scale)
@@ -157,10 +152,11 @@ def train_net(net,
 
             # Evaluation round
             histograms = {}
-            for tag, value in net.named_parameters():
-                tag = tag.replace('/', '.')
-                histograms['Weights/' + tag] = wandb.Histogram(value.data.cpu())
-                histograms['Gradients/' + tag] = wandb.Histogram(value.grad.data.cpu())
+            if use_histograms:
+                for tag, value in net.named_parameters():
+                    tag = tag.replace('/', '.')
+                    histograms['Weights/' + tag] = wandb.Histogram(value.data.cpu())
+                    histograms['Gradients/' + tag] = wandb.Histogram(value.grad.data.cpu())
 
             val_score, val_loss = evaluate(net, val_loader, device)
             scheduler.step(val_loss)
@@ -207,6 +203,8 @@ def get_args():
     parser.add_argument('--amp', action='store_true', default=False, help='Use mixed precision')
     parser.add_argument('--bilinear', action='store_true', default=False, help='Use bilinear upsampling')
     parser.add_argument('--classes', '-c', type=int, default=2, help='Number of classes')
+    parser.add_argument('--histograms', action='store_true', default=False, help='Use histograms to track weights and '
+                                                                                 'gradients')
 
     return parser.parse_args()
 
@@ -254,7 +252,8 @@ if __name__ == '__main__':
                   device=device,
                   img_scale=args.scale,
                   val_percent=args.val / 100,
-                  amp=args.amp)
+                  amp=args.amp,
+                  use_histograms=args.histograms)
     except KeyboardInterrupt:
         torch.save(net.state_dict(), 'INTERRUPTED.pth')
         logging.info('Saved interrupt (training)')
