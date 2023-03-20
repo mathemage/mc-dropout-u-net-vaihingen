@@ -35,7 +35,8 @@ dir_checkpoint = Path('./checkpoints/vaihingen/')
 
 def train_net(
         net, device, epochs: int = 5, batch_size: int = 1, learning_rate: float = 1e-3, val_percent: float = 0.1,
-        save_checkpoint: bool = True, img_scale: float = 0.5, amp: bool = False, use_histograms=False
+        save_checkpoint: bool = True, img_scale: float = 0.5, amp: bool = False, use_histograms=False,
+        flip_horizontally=True, flip_vertically=False
 ):
     # 1. Create dataset
     try:
@@ -52,10 +53,13 @@ def train_net(
     loader_args = dict(batch_size=batch_size, num_workers=4, pin_memory=True)
     train_loader = DataLoader(train_set, shuffle=True, **loader_args)
     val_loader = DataLoader(val_set, shuffle=False, drop_last=True, **loader_args)
-    preprocessors = transforms.Compose([
-        transforms.RandomHorizontalFlip(),
-        transforms.RandomVerticalFlip(),
-    ])
+
+    data_augmentation = []
+    if flip_horizontally:
+        data_augmentation.append(transforms.RandomHorizontalFlip())
+    if flip_vertically:
+        data_augmentation.append(transforms.RandomVerticalFlip)
+    preprocessors = transforms.Compose(data_augmentation)
 
     # (Initialize logging)
     experiment = wandb.init(project='U-Net', resume='allow', anonymous='must')
