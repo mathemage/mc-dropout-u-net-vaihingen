@@ -1,12 +1,12 @@
 import argparse
 import logging
 import os
-import sys
 from pathlib import Path
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torchvision.transforms import transforms
 
 import wandb
 from patchify_dataset import patchify_dataset
@@ -33,15 +33,11 @@ dir_mask = Path('./data/vaihingen/trainset/masks/patches_128x128x3/')
 dir_checkpoint = Path('./checkpoints/vaihingen/')
 
 
-def train_net(net,
-              device,
-              epochs: int = 5,
-              batch_size: int = 1,
-              learning_rate: float = 1e-3,
-              val_percent: float = 0.1,
-              save_checkpoint: bool = True,
-              img_scale: float = 0.5,
-              amp: bool = False):
+def train_net(
+        net, device, epochs: int = 5, batch_size: int = 1, learning_rate: float = 1e-3, val_percent: float = 0.1,
+        save_checkpoint: bool = True, img_scale: float = 0.5, amp: bool = False, use_histograms = False,
+        flip_horizontally = True, flip_vertically = True
+):
     # 1. Create dataset
     try:
         dataset = CarvanaDataset(dir_img, dir_mask, img_scale)
@@ -57,6 +53,13 @@ def train_net(net,
     loader_args = dict(batch_size=batch_size, num_workers=4, pin_memory=True)
     train_loader = DataLoader(train_set, shuffle=True, **loader_args)
     val_loader = DataLoader(val_set, shuffle=False, drop_last=True, **loader_args)
+
+    data_augmentation = []
+    if flip_horizontally:
+        data_augmentation.append(transforms.RandomHorizontalFlip())
+    if flip_vertically:
+        data_augmentation.append(transforms.RandomVerticalFlip())
+    preprocessors = transforms.Compose(data_augmentation)
 
     # (Initialize logging)
     experiment = wandb.init(project='U-Net', resume='allow', anonymous='must')
@@ -102,6 +105,12 @@ def train_net(net,
                     f'Network has been defined with {net.n_channels} input channels, ' \
                     f'but loaded images have {images.shape[1]} channels. Please check that ' \
                     'the images are loaded correctly.'
+
+                # https://discuss.pytorch.org/t/for-segmentation-how-to-perform-data-augmentation-in-pytorch/89484/5
+                state = torch.get_rng_state()
+                images = preprocessors(images)
+                torch.set_rng_state(state)
+                true_masks = preprocessors(true_masks)
 
                 images = images.to(device=device, dtype=torch.float32)
                 true_masks = true_masks.to(device=device, dtype=torch.long)
@@ -150,10 +159,11 @@ def train_net(net,
 
             # Evaluation round
             histograms = {}
-            for tag, value in net.named_parameters():
-                tag = tag.replace('/', '.')
-                histograms['Weights/' + tag] = wandb.Histogram(value.data.cpu())
-                histograms['Gradients/' + tag] = wandb.Histogram(value.grad.data.cpu())
+            if use_histograms:
+                for tag, value in net.named_parameters():
+                    tag = tag.replace('/', '.')
+                    histograms['Weights/' + tag] = wandb.Histogram(value.data.cpu())
+                    histograms['Gradients/' + tag] = wandb.Histogram(value.grad.data.cpu())
 
             val_score, val_loss = evaluate(net, val_loader, device)
             scheduler.step(val_loss)
@@ -200,6 +210,8 @@ def get_args():
     parser.add_argument('--amp', action='store_true', default=False, help='Use mixed precision')
     parser.add_argument('--bilinear', action='store_true', default=False, help='Use bilinear upsampling')
     parser.add_argument('--classes', '-c', type=int, default=2, help='Number of classes')
+    parser.add_argument('--histograms', action='store_true', default=False, help='Use histograms to track weights and '
+                                                                                 'gradients')
 
     return parser.parse_args()
 
@@ -247,7 +259,8 @@ if __name__ == '__main__':
                   device=device,
                   img_scale=args.scale,
                   val_percent=args.val / 100,
-                  amp=args.amp)
+                  amp=args.amp,
+                  use_histograms=args.histograms)
     except KeyboardInterrupt:
         torch.save(net.state_dict(), 'INTERRUPTED.pth')
         logging.info('Saved interrupt (training)')
