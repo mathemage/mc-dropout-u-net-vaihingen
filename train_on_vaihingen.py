@@ -106,11 +106,14 @@ def train_net(
                     f'but loaded images have {images.shape[1]} channels. Please check that ' \
                     'the images are loaded correctly.'
 
+                # https://discuss.pytorch.org/t/for-segmentation-how-to-perform-data-augmentation-in-pytorch/89484/5
+                state = torch.get_rng_state()
+                images = preprocessors(images)
+                torch.set_rng_state(state)
+                true_masks = preprocessors(true_masks)
+
                 images = images.to(device=device, dtype=torch.float32)
                 true_masks = true_masks.to(device=device, dtype=torch.long)
-
-                images = preprocessors(images)
-                true_masks = preprocessors(true_masks)
 
                 with torch.cuda.amp.autocast(enabled=amp):
                     masks_pred = net(images)
