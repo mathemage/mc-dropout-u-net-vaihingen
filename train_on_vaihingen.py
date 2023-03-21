@@ -36,7 +36,7 @@ dir_checkpoint = Path('./checkpoints/vaihingen/')
 def train_net(
         net, device, epochs: int = 5, batch_size: int = 1, learning_rate: float = 1e-3, val_percent: float = 0.1,
         save_checkpoint: bool = True, img_scale: float = 0.5, amp: bool = False, use_histograms=False,
-        flip_horizontally=True, flip_vertically=False
+        flip_horizontally=False, flip_vertically=False
 ):
     # 1. Create dataset
     try:
