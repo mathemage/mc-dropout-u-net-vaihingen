@@ -58,7 +58,7 @@ def train_net(
     if flip_horizontally:
         data_augmentation.append(transforms.RandomHorizontalFlip())
     if flip_vertically:
-        data_augmentation.append(transforms.RandomVerticalFlip)
+        data_augmentation.append(transforms.RandomVerticalFlip())
     preprocessors = transforms.Compose(data_augmentation)
 
     # (Initialize logging)
