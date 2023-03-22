@@ -34,9 +34,9 @@ dir_checkpoint = Path('./checkpoints/vaihingen/')
 
 
 def train_net(
-        net, device, epochs: int = 5, batch_size: int = 1, learning_rate: float = 1e-3, val_percent: float = 0.1,
-        save_checkpoint: bool = True, img_scale: float = 0.5, amp: bool = False, use_histograms = False,
-        flip_horizontally = True, flip_vertically = True
+        net, device, epochs: int = 512, batch_size: int = 1, learning_rate: float = 1e-3, val_percent: float = 0.1,
+        save_checkpoint: bool = True, img_scale: float = 0.5, amp: bool = False, use_histograms=False,
+        flip_horizontally=True, flip_vertically=True
 ):
     # 1. Create dataset
     try:
@@ -193,7 +193,7 @@ def train_net(
 
 def get_args():
     parser = argparse.ArgumentParser(description='Train the UNet on images and target masks')
-    parser.add_argument('--epochs', '-e', metavar='E', type=int, default=5, help='Number of epochs')
+    parser.add_argument('--epochs', '-e', metavar='E', type=int, default=512, help='Number of epochs')
     parser.add_argument('--batch-size', '-b', dest='batch_size', metavar='B', type=int, default=64, help='Batch size')
     parser.add_argument('--learning-rate', '-l', metavar='LR', type=float, default=1e-3,
                         help='Learning rate', dest='lr')
