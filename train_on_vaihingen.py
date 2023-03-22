@@ -1,5 +1,6 @@
 import argparse
 import logging
+import math
 import os
 from pathlib import Path
 
@@ -89,9 +90,11 @@ def train_net(
     global_step = 0
 
     # 5. Begin training
-    early_stopper = EarlyStopper(patience=20)  # also perform early stopping (stop the training if no decay in the
+    # also perform early stopping (stop the training if no decay in the validation loss is observed in the 20 last
+    # epochs)
+    early_stopper = EarlyStopper(patience=20)
     early_stop = 0
-    # validation loss is observed in the 20 last epochs)
+    best_val_score = -math.inf
     for epoch in range(1, epochs + 1):
         net.train()
         epoch_loss = 0
@@ -167,6 +170,15 @@ def train_net(
 
             val_score, val_loss = evaluate(net, val_loader, device)
             scheduler.step(val_loss)
+            if val_score > best_val_score:
+                logging.critical(f"New best validation score: {best_val_score} -> {val_score}")
+                best_val_score = val_score
+
+                Path(dir_checkpoint).mkdir(parents=True, exist_ok=True)
+                checkpoint_name = str(dir_checkpoint / 'checkpoint_best_val_score.pth')
+                torch.save(net.state_dict(), checkpoint_name)
+                logging.critical(f'Checkpoint {checkpoint_name} saved!')
+
             if val_loss is not None and early_stopper.early_stop(val_loss):
                 logging.critical(f"Early stop at epoch {epoch}. val_loss == {val_loss}, val_score == {val_score}")
                 logging.info(f"val_loss == {val_loss}\n"
